@@ -1,5 +1,8 @@
+import random
 import pygame
-from image_loader import load_image
+from image_loader import load_image, rescale_image
+from constants import RESOURCES_INDEXES
+
 
 class Board:
     # создание поля
@@ -13,35 +16,33 @@ class Board:
         self.cell_size = 30
         self.clicked = []
 
+        self.count = 20
+
+        self.states = [rescale_image(load_image('stone.png')),
+                       rescale_image(load_image('coal.png')),
+                       rescale_image(load_image('iron.png')),
+                       rescale_image(load_image('gold.png')),
+                       rescale_image(load_image('artifact.png')),
+                       rescale_image(load_image('diamond.png'))]
+
+
     def render(self, screen):
-        cell_image = load_image('tile.png')
-        cell_image = pygame.transform.scale(cell_image,
-                                            (self.cell_size, self.cell_size))
         pygame.draw.rect(screen, pygame.Color('#977d54'), (
         self.left - 3, self.top - 3, self.width * self.cell_size + 6,
         self.height * self.cell_size + 6), 3)
 
         for y in range(self.height):
             for x in range(self.width):
-                # pygame.draw.rect(screen, colors[self.board[y][x]], (
-                #     x * self.cell_size + self.left,
-                #     y * self.cell_size + self.top,
-                #     self.cell_size, self.cell_size))
-                if self.board[y][x] == 1:
-                    pygame.draw.rect(screen, pygame.Color('black'), (
+                if self.board[y][x] != 0:
+                    screen.blit(self.board[y][x], (
                         x * self.cell_size + self.left,
                         y * self.cell_size + self.top,
                         self.cell_size, self.cell_size))
                 else:
-                    screen.blit(cell_image, (
+                    screen.blit(load_image('tile.png'), (
                         x * self.cell_size + self.left,
                         y * self.cell_size + self.top,
                         self.cell_size, self.cell_size))
-
-                # pygame.draw.rect(screen, pygame.Color('gray'), (
-                #     x * self.cell_size + self.left,
-                #     y * self.cell_size + self.top,
-                #     self.cell_size, self.cell_size), 2)
 
     # настройка внешнего вида
     def set_view(self, left, top, cell_size):
@@ -57,13 +58,17 @@ class Board:
             return
         return cell_x, cell_y
 
-    def on_click(self, cell):
-        if cell not in self.clicked:
-            self.board[cell[1]][cell[0]] = (self.board[cell[1]][
-                                                cell[0]] + 1) % 2
-            self.clicked.append(cell)
+    def on_click(self, cell, table):
+        state = random.choices(self.states, weights=(40, 25, 20, 8, 5, 2), k=1)[0]
+        index = self.states.index(state)
+        if index:
+            resource = RESOURCES_INDEXES[index]
+            table.resources[resource] += 1
+        self.board[cell[1]][cell[0]] = state
+        self.clicked.append(cell)
 
-    def get_click(self, mouse_pos):
+    def get_click(self, mouse_pos, table):
         cell = self.get_cell(mouse_pos)
-        if cell:
-            self.on_click(cell)
+        if cell and cell not in self.clicked:
+            self.on_click(cell, table)
+            self.count -= 1

@@ -19,3 +19,9 @@ def load_image(name, color_key=None):
         image = image.convert_alpha()
 
     return image
+
+
+def rescale_image(image):
+    res = pygame.transform.scale(image, (120, 120))
+
+    return res
