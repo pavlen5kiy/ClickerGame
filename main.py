@@ -1,35 +1,54 @@
 import pygame
 from board import Board
-from image_loader import load_image
+from image_controller import load_image
 from resources_table import Table
+from text_controller import Text
+from sprite_controller import Cursor
+
+
+def background(screen):
+    bg = load_image('background.jpeg')
+    bg = pygame.transform.smoothscale(bg, screen.get_size())
+    screen.blit(bg, (0, 0))
+
+
+def screen_init():
+    # Setting a game window with computer's screen size
+    screen_info = pygame.display.Info()
+    width, height = screen_info.current_w, screen_info.current_h
+    # width, height = 1920, 1080
+    screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
+
+    pygame.display.set_caption('Board dev')
+
+    return screen, width, height
+
+
+def make_board(size, screen_size):
+    width, height = screen_size
+    board = Board(*size)
+    cell_size = 120
+    left = width // 2 - board.width * cell_size // 2
+    top = height // 2 - board.height * cell_size // 2
+    board.set_view(left, top, cell_size)
+
+    return board
 
 
 def main():
     pygame.init()
     clock = pygame.time.Clock()
 
-    # Setting a game window with computer's screen size
-    screen_info = pygame.display.Info()
-    width, height = screen_info.current_w, screen_info.current_h
-    # width, height = 1920, 1080
-    screen = pygame.display.set_mode((width, height))
-
-    pygame.display.set_caption('Board dev')
+    # Initializing screen
+    screen, width, height = screen_init()
 
     # Making a board
-    board = Board(7, 7)
-    cell_size = 120
-    left = width // 2 - board.width * cell_size // 2
-    top = height // 2 - board.height * cell_size // 2
-    board.set_view(left, top, cell_size)
+    board = make_board((7, 7), (width, height))
 
     # Sprites
-    all_sprites = pygame.sprite.Group()
-
+    cursor_group = pygame.sprite.Group()
     cursor_image = load_image("cursor.png")
-    cursor = pygame.sprite.Sprite(all_sprites)
-    cursor.image = cursor_image
-    cursor.rect = cursor.image.get_rect()
+    cursor = Cursor(cursor_image, cursor_group)
 
     # Resources table
     table = Table()
@@ -49,8 +68,6 @@ def main():
 
             if mouse_in_area:
                 pygame.mouse.set_visible(False)
-
-                cursor.rect.topleft = pygame.mouse.get_pos()
                 render_cursor = True
 
         for event in pygame.event.get():
@@ -61,30 +78,23 @@ def main():
                 if board.count and mouse_in_area:
                     board.get_click(event.pos, table)
 
-        # screen.fill('#f4a460')
-        background = load_image('mango-y-banana-2.jpg')
-        background = pygame.transform.smoothscale(background,
-                                                  screen.get_size())
-        screen.blit(background, (0, 0))
+        # Background
+        background(screen)
 
         # Working with text
-        font = pygame.font.Font(None, 100)
-        if board.count:
-            board.count_label = font.render(str(board.count), True, 'white')
-        else:
-            board.count_label = font.render(str(board.count), True, 'red')
-        screen.blit(board.count_label, (20, 20))
+        text = Text(screen, (width, height))
+        text.dig_count(board.count)
 
         if not board.count:
-            text = font.render("Game Over!", True, 'white')
-            screen.blit(text, (width // 2 - text.get_width() // 2, board.top + board.cell_size * board.height + 50))
+            text.game_over(board)
             table.render(screen)
 
         board.render(screen)
 
         # Cursor render
         if render_cursor:
-            all_sprites.draw(screen)
+            cursor_group.draw(screen)
+        cursor.update()
 
         pygame.display.flip()
 

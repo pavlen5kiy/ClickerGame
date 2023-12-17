@@ -1,5 +1,4 @@
 import pygame
-from image_loader import load_image
 
 
 class Table:
@@ -16,6 +15,7 @@ class Table:
         font = pygame.font.Font(None, 100)
         y = 100
         for key in self.resources:
-            output = font.render(f'{key}: {self.resources[key]}', True, 'white')
-            screen.blit(output, (20, y))
-            y += 70
+            if self.resources[key] != 0:
+                output = font.render(f'{key}: {self.resources[key]}', True, 'white')
+                screen.blit(output, (20, y))
+                y += 70
