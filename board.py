@@ -2,21 +2,30 @@ import random
 import pygame
 from image_controller import load_image, rescale_image
 from constants import RESOURCES_INDEXES
+from ui import Table
 
 
 class Board:
-    # создание поля
-    def __init__(self, width, height):
+    # Creating board
+    def __init__(self, width, height, count=5):
+
+        '''
+
+        :type width: int
+        :type height: int
+        :type count: int
+        '''
+
         self.width = width
         self.height = height
         self.board = [[0] * width for _ in range(height)]
-        # значения по умолчанию
+        # Defaults
         self.left = 10
         self.top = 10
         self.cell_size = 30
         self.clicked = []
-
-        self.count = 49
+        self.count = count
+        self.layers = 1
 
         self.states = [rescale_image(load_image('stone.png')),
                        rescale_image(load_image('coal.png')),
@@ -26,6 +35,11 @@ class Board:
                        rescale_image(load_image('diamond.png'))]
 
     def render(self, screen):
+
+        '''
+        Draws a board
+        '''
+
         # Borders
         pygame.draw.rect(screen, pygame.Color('#a57855'), (
             self.left - 3, self.top - 3, self.width * self.cell_size + 6,
@@ -45,13 +59,27 @@ class Board:
                         y * self.cell_size + self.top,
                         self.cell_size, self.cell_size))
 
-    # настройка внешнего вида
     def set_view(self, left, top, cell_size):
+
+        '''
+        Sets board's position and cell size
+        :type left: int
+        :type top: int
+        :type cell_size: int
+        '''
+
         self.left = left
         self.top = top
         self.cell_size = cell_size
 
     def get_cell(self, mouse_pos):
+
+        '''
+        Gets list indexes of pressed cell
+        :type mouse_pos: tuple
+        :return: cell's coordinates in list
+        '''
+
         cell_x = (mouse_pos[0] - self.left) // self.cell_size
         cell_y = (mouse_pos[1] - self.top) // self.cell_size
         if cell_x < 0 or cell_x >= self.width or \
@@ -60,9 +88,15 @@ class Board:
         return cell_x, cell_y
 
     def on_click(self, cell, table):
-        # Randomly generating resources
-        state = \
-        random.choices(self.states, weights=(40, 25, 20, 8, 5, 2), k=1)[0]
+
+        '''
+        Randomly generates resources after cell was clicked
+        :type cell: tuple
+        :type table: Table
+        '''
+
+        state = random.choices(self.states,
+                               weights=(40, 25, 20, 8, 5, 2), k=1)[0]
         index = self.states.index(state)
         if index:
             resource = RESOURCES_INDEXES[index]
@@ -72,6 +106,13 @@ class Board:
         self.clicked.append(cell)
 
     def get_click(self, mouse_pos, table):
+
+        '''
+        Activates resources generation and decreases dig count
+        :type mouse_pos: tuple
+        :type table: Table
+        '''
+
         cell = self.get_cell(mouse_pos)
         if cell and cell not in self.clicked:
             self.on_click(cell, table)

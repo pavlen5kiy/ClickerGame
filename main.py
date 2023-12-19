@@ -1,9 +1,12 @@
 import pygame
 from board import Board
 from image_controller import load_image
-from resources_table import Table
-from text_controller import Text
+from ui import Text, Table
 from sprite_controller import Cursor
+
+
+def log(output):
+    print(f'LOG: ', output)
 
 
 def background(screen):
@@ -16,8 +19,8 @@ def screen_init():
     # Setting a game window with computer's screen size
     screen_info = pygame.display.Info()
     width, height = screen_info.current_w, screen_info.current_h
-    # width, height = 1920, 1080
-    screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
+    log(f'screen resolution {(width, height)}')
+    screen = pygame.display.set_mode((width, height))
 
     pygame.display.set_caption('Board dev')
 
@@ -26,7 +29,7 @@ def screen_init():
 
 def make_board(size, screen_size):
     width, height = screen_size
-    board = Board(*size)
+    board = Board(*size, count=5)
     cell_size = 120
     left = width // 2 - board.width * cell_size // 2
     top = height // 2 - board.height * cell_size // 2
@@ -51,7 +54,7 @@ def main():
     cursor = Cursor(cursor_image, cursor_group)
 
     # Resources table
-    table = Table()
+    table = Table(screen, (width, height))
 
     # Game cycle
     running = True
