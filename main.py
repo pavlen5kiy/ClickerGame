@@ -1,8 +1,17 @@
+import sys
+
 import pygame
 from board import Board
 from image_controller import load_image
-from ui import Text, Table
+from ui import Table, DigCount
+from money import Money
 from sprite_controller import Cursor
+
+
+def terminate():
+    pygame.quit()
+    print('Sorry, something went wrong!')
+    sys.exit()
 
 
 def log(output):
@@ -27,9 +36,9 @@ def screen_init():
     return screen, width, height
 
 
-def make_board(size, screen_size):
+def make_board(money, size, screen_size):
     width, height = screen_size
-    board = Board(*size, count=5)
+    board = Board(money, *size, count=49)
     cell_size = 120
     left = width // 2 - board.width * cell_size // 2
     top = height // 2 - board.height * cell_size // 2
@@ -45,16 +54,17 @@ def main():
     # Initializing screen
     screen, width, height = screen_init()
 
+    table = Table(screen, (width, height))
+    money = Money(screen, (width, height))
+    dig_count = DigCount(screen, (width, height))
+
     # Making a board
-    board = make_board((7, 7), (width, height))
+    board = make_board(money, (7, 7), (width, height))
 
     # Sprites
     cursor_group = pygame.sprite.Group()
     cursor_image = load_image("cursor.png")
     cursor = Cursor(cursor_image, cursor_group)
-
-    # Resources table
-    table = Table(screen, (width, height))
 
     # Game cycle
     running = True
@@ -64,7 +74,9 @@ def main():
 
         render_cursor = False
         x, y = pygame.mouse.get_pos()
-        mouse_in_area = board.left <= x <= board.left + board.width * board.cell_size and board.top <= y <= board.top + board.height * board.cell_size
+        mouse_in_area = (board.left <= x <= board.left + board.width *
+                         board.cell_size and board.top <= y <= board.top +
+                         board.height * board.cell_size)
 
         if pygame.mouse.get_focused():
             pygame.mouse.set_visible(True)
@@ -85,12 +97,11 @@ def main():
         background(screen)
 
         # Working with text
-        text = Text(screen, (width, height))
-        text.dig_count(board.count)
+        dig_count.render(board.count)
+        money.render()
 
         if not board.count:
-            text.game_over(board)
-            table.render(screen)
+            table.render()
 
         board.render(screen)
 
@@ -105,4 +116,7 @@ def main():
 
 
 if __name__ == '__main__':
+    # try:
     main()
+    # except Exception:
+    #     terminate()

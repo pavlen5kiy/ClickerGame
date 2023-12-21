@@ -7,7 +7,7 @@ from ui import Table
 
 class Board:
     # Creating board
-    def __init__(self, width, height, count=5):
+    def __init__(self, money, width, height, count=5):
 
         '''
 
@@ -16,6 +16,7 @@ class Board:
         :type count: int
         '''
 
+        self.money = money
         self.width = width
         self.height = height
         self.board = [[0] * width for _ in range(height)]
@@ -101,6 +102,10 @@ class Board:
         if index:
             resource = RESOURCES_INDEXES[index]
             table.resources[resource] += 1
+            if index == 5:
+                self.money.gems += random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[0]
+            elif index == 4:
+                self.money.coins += random.choices(range(20, 50), weights=tuple(range(90, 0, -3)), k=1)[0]
 
         self.board[cell[1]][cell[0]] = state
         self.clicked.append(cell)
