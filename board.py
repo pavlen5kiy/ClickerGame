@@ -28,12 +28,14 @@ class Board:
         self.count = count
         self.layers = 1
 
-        self.states = [rescale_image(load_image('stone.png')),
-                       rescale_image(load_image('coal.png')),
-                       rescale_image(load_image('iron.png')),
-                       rescale_image(load_image('gold.png')),
-                       rescale_image(load_image('artifact.png')),
-                       rescale_image(load_image('diamond.png'))]
+        self.states = [load_image('stone.png'),
+                       load_image('coal.png'),
+                       load_image('iron.png'),
+                       load_image('gold.png'),
+                       [load_image('sigma.png'),
+                        rescale_image(load_image('ipuchi.jpg')),
+                        rescale_image(load_image('skull.jpeg'))],
+                       load_image('diamond.png')]
 
     def render(self, screen):
 
@@ -105,6 +107,7 @@ class Board:
             if index == 5:
                 self.money.gems += random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[0]
             elif index == 4:
+                state = random.choice(self.states[4])
                 self.money.coins += random.choices(range(20, 50), weights=tuple(range(90, 0, -3)), k=1)[0]
 
         self.board[cell[1]][cell[0]] = state

@@ -66,6 +66,10 @@ def main():
     cursor_image = load_image("cursor.png")
     cursor = Cursor(cursor_image, cursor_group)
 
+    pickaxe_cursor_group = pygame.sprite.Group()
+    pickaxe_cursor_image = load_image("pickaxe_cursor.png")
+    pickaxe_cursor = Cursor(pickaxe_cursor_image, pickaxe_cursor_group)
+
     # Game cycle
     running = True
 
@@ -79,10 +83,9 @@ def main():
                          board.height * board.cell_size)
 
         if pygame.mouse.get_focused():
-            pygame.mouse.set_visible(True)
+            pygame.mouse.set_visible(False)
 
             if mouse_in_area:
-                pygame.mouse.set_visible(False)
                 render_cursor = True
 
         for event in pygame.event.get():
@@ -107,8 +110,11 @@ def main():
 
         # Cursor render
         if render_cursor:
+            pickaxe_cursor_group.draw(screen)
+        else:
             cursor_group.draw(screen)
         cursor.update()
+        pickaxe_cursor.update()
 
         pygame.display.flip()
 
