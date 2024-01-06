@@ -4,15 +4,14 @@ import math
 
 import pygame
 from board import Board
-from image_controller import load_image, rescale_image
+from image_controller import load_image
 from ui import Table, DigCount
 from money import Money
-from sprite_controller import Cursor, Button, Particle
+from sprite_controller import Cursor, Button
 
 
 def terminate():
     pygame.quit()
-    print('Sorry, something went wrong!')
     sys.exit()
 
 
@@ -42,10 +41,9 @@ def background(screen_size, tiles=None, rand=False, weights=None):
     y_tiles = math.ceil(height / im_height)
 
     if rand:
-        bg = []
-        for x in range(x_tiles):
-            for y in range(y_tiles):
-                bg.append(random.choices(tiles, weights=weights, k=1)[0])
+        bg = [[random.choices(tiles, weights=weights, k=1)[0] for x in
+               range(x_tiles)] for y in range(y_tiles - 1)]
+        bg.append([load_image('cliff.png')] * x_tiles)
 
         return bg, x_tiles, y_tiles
     return x_tiles, y_tiles
@@ -66,11 +64,32 @@ def main():
     cursor = Cursor(cursor_image, super_group)
 
     main_menu = pygame.sprite.Group()
-    dig_button = Button(load_image("map.png"), load_image('map_highlited.png'),
-                        (700, 800), main_menu)
+    db_image = load_image("map.png")
+    dig_button = Button(db_image, load_image('map_highlited.png'),
+                        (
+                            300,
+                            screen_size[1] // 2 - db_image.get_height() // 2),
+                        main_menu)
+
+    wh_image = load_image("workshop.png")
+    workshop_button = Button(wh_image,
+                             load_image('workshop_highlited.png'),
+                             (
+                                 screen_size[0] - wh_image.get_width() - 300,
+                                 screen_size[
+                                     1] // 2 - wh_image.get_height() // 2),
+                             main_menu)
+
+    close_image = load_image("close.png")
+    close_button = Button(close_image,
+                          load_image('close_highlited.png'),
+                          (10, screen_size[1] - close_image.get_height() - 10),
+                          main_menu)
 
     # DIGGING
     width, height = screen_size
+
+    calculated = False
 
     # Ui
     table = Table(screen, screen_size)
@@ -79,7 +98,7 @@ def main():
 
     # Board
     size = 7, 7
-    board = Board(money, *size, count=49)
+    board = Board(money, *size)
     cell_size = 120
     left = width // 2 - board.width * cell_size // 2
     top = height // 2 - board.height * cell_size // 2
@@ -90,6 +109,26 @@ def main():
     pickaxe_cursor = Cursor(load_image("pickaxe_cursor.png"), dig_menu)
 
     particles_group = pygame.sprite.Group()
+
+    # WORKSHOP
+    workshop_menu = pygame.sprite.Group()
+    home_button = Button(load_image("home.png"),
+                         load_image('home_highlited.png'),
+                         (10, 10), workshop_menu)
+
+    storage_image = load_image("chest.png")
+    storage_button = Button(storage_image,
+                            load_image('chest_highlited.png'),
+                            (screen_size[0] - storage_image.get_width() - 20,
+                             174),
+                            workshop_menu)
+
+    powerup_image = load_image("powerup.png")
+    powerup_button = Button(powerup_image,
+                            load_image('powerup_highlited.png'),
+                            (screen_size[0] - powerup_image.get_width() - storage_image.get_width() - 30,
+                             174),
+                            workshop_menu)
 
     running = True
     bg_drawn = False
@@ -114,14 +153,23 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
+                if close_button.update(event):
+                    running = False
+
                 if dig_button.update(event):
                     mode = 2
+                    bg_drawn = False
+
+                if workshop_button.update(event):
+                    mode = 3
                     bg_drawn = False
 
             # Drawing background
             for x in range(x_tiles):
                 for y in range(y_tiles):
                     screen.blit(bg, (x * 120, y * 120))
+
+            money.render()
 
             main_menu.draw(screen)
 
@@ -165,16 +213,27 @@ def main():
                         board.get_click(event.pos, table, particles_group)
 
             # Drawing background
-            for x in range(x_tiles):
-                for y in range(y_tiles):
-                    screen.blit(bg[x * y], (x * 120, y * 120))
+            for y in range(y_tiles - 1, -1, -1):
+                for x in range(x_tiles):
+                    screen.blit(bg[y][x], (x * 120, y * 120))
 
             # Working with text
             dig_count.render(board.count)
             money.render()
 
             if not board.count:
+
+                if not calculated:
+                    for key in table.resources:
+                        if table.resources[key] != 0:
+                            table.rendering.append(key)
+                    table.render_count = len(table.rendering)
+                    calculated = True
+
                 table.render()
+                table.update()
+
+                dig_count.update()
 
             board.render(screen)
 
@@ -189,11 +248,53 @@ def main():
 
             pygame.display.flip()
 
+        if mode == 3:
+            if not bg_drawn:
+                # Loading background
+                x_tiles, y_tiles = background(screen_size, rand=False)
+                bg = load_image('bricks.png')
+
+                bg_drawn = True
+
+            if pygame.mouse.get_focused():
+                pygame.mouse.set_visible(False)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                if home_button.update(event):
+                    mode = 1
+                    bg_drawn = False
+
+                if storage_button.update(event):
+                    pass
+
+                if powerup_button.update(event):
+                    pass
+
+            # Drawing background
+            for x in range(x_tiles):
+                for y in range(y_tiles):
+                    screen.blit(bg, (x * 120, y * 120))
+
+            money.render()
+
+            workshop_menu.draw(screen)
+
+            # Cursor render
+            super_group.draw(screen)
+            cursor.update(True)
+
+            pygame.display.flip()
+
     pygame.quit()
 
 
 if __name__ == '__main__':
     # try:
     main()
+    sys.exit()
     # except Exception:
+    #     print('Sorry, something went wrong!')
     #     terminate()

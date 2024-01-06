@@ -64,3 +64,17 @@ class Particle(Sprite):
         self.rect.y += self.velocity[1]
         if not self.rect.colliderect(screen_rect):
             self.kill()
+
+
+# Particles functions
+def create_particles(position, particles, particle_count, *group):
+    numbers = range(-5, 6)
+    for _ in range(particle_count):
+        Particle(position, random.choice(numbers), random.choice(numbers), particles, *group)
+
+
+def generate_particles(filename):
+    particles = [load_image(filename)]
+    for scale in (5, 10, 20):
+        particles.append(pygame.transform.scale(particles[0], (scale, scale)))
+    return particles

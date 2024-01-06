@@ -3,26 +3,13 @@ import pygame
 from image_controller import load_image, rescale_image
 from constants import RESOURCES_INDEXES
 from ui import Table
-from sprite_controller import Particle
-
-
-# Particles
-def create_particles(position, particles, particle_count, *group):
-    numbers = range(-5, 6)
-    for _ in range(particle_count):
-        Particle(position, random.choice(numbers), random.choice(numbers), particles, *group)
-
-
-def generate_particles(filename):
-    particles = [load_image(filename)]
-    for scale in (5, 10, 20):
-        particles.append(pygame.transform.scale(particles[0], (scale, scale)))
-    return particles
+from sprite_controller import create_particles, generate_particles
+from sound_controller import play_sound
 
 
 class Board:
     # Creating board
-    def __init__(self, money, width, height, count=5):
+    def __init__(self, money, width, height):
 
         '''
 
@@ -40,7 +27,7 @@ class Board:
         self.top = 10
         self.cell_size = 30
         self.clicked = []
-        self.count = count
+        self.count = 49
         self.layers = 1
 
         self.states = [load_image('stone.png'),
