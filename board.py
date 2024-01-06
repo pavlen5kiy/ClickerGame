@@ -3,6 +3,21 @@ import pygame
 from image_controller import load_image, rescale_image
 from constants import RESOURCES_INDEXES
 from ui import Table
+from sprite_controller import Particle
+
+
+# Particles
+def create_particles(position, particles, particle_count, *group):
+    numbers = range(-5, 6)
+    for _ in range(particle_count):
+        Particle(position, random.choice(numbers), random.choice(numbers), particles, *group)
+
+
+def generate_particles(filename):
+    particles = [load_image(filename)]
+    for scale in (5, 10, 20):
+        particles.append(pygame.transform.scale(particles[0], (scale, scale)))
+    return particles
 
 
 class Board:
@@ -90,30 +105,48 @@ class Board:
             return
         return cell_x, cell_y
 
-    def on_click(self, cell, table):
+    def on_click(self, cell, table, particles_group):
 
         '''
         Randomly generates resources after cell was clicked
         :type cell: tuple
         :type table: Table
         '''
+        create_particles(pygame.mouse.get_pos(),
+                         generate_particles('sand_particle.png'),
+                         20,
+                         particles_group)
 
         state = random.choices(self.states,
                                weights=(40, 25, 20, 8, 5, 2), k=1)[0]
         index = self.states.index(state)
+
         if index:
             resource = RESOURCES_INDEXES[index]
             table.resources[resource] += 1
             if index == 5:
-                self.money.gems += random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[0]
+                amount = random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[0]
+                self.money.gems += amount
+
+                create_particles(pygame.mouse.get_pos(),
+                                 generate_particles('gem.png'),
+                                 amount,
+                                 particles_group)
+
             elif index == 4:
                 state = random.choice(self.states[4])
-                self.money.coins += random.choices(range(20, 50), weights=tuple(range(90, 0, -3)), k=1)[0]
+                amount = random.choices(range(20, 50), weights=tuple(range(90, 0, -3)), k=1)[0]
+                self.money.coins += amount
+
+                create_particles(pygame.mouse.get_pos(),
+                                 generate_particles('coin.png'),
+                                 amount // 2,
+                                 particles_group)
 
         self.board[cell[1]][cell[0]] = state
         self.clicked.append(cell)
 
-    def get_click(self, mouse_pos, table):
+    def get_click(self, mouse_pos, table, particles_group):
 
         '''
         Activates resources generation and decreases dig count
@@ -123,5 +156,5 @@ class Board:
 
         cell = self.get_cell(mouse_pos)
         if cell and cell not in self.clicked:
-            self.on_click(cell, table)
+            self.on_click(cell, table, particles_group)
             self.count -= 1
