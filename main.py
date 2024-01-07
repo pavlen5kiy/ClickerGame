@@ -108,26 +108,31 @@ def main():
     dig_menu = pygame.sprite.Group()
     pickaxe_cursor = Cursor(load_image("pickaxe_cursor.png"), dig_menu)
 
+    home_image = load_image("home.png")
+    home_button_2 = Button(home_image,
+                           load_image('home_highlited.png'),
+                           (10, screen_size[1] - home_image.get_height() - 10), dig_menu)
+
     particles_group = pygame.sprite.Group()
 
     # WORKSHOP
     workshop_menu = pygame.sprite.Group()
-    home_button = Button(load_image("home.png"),
+    home_button_3 = Button(home_image,
                          load_image('home_highlited.png'),
-                         (10, 10), workshop_menu)
+                         (10, screen_size[1] - home_image.get_height() - 10), workshop_menu)
 
     storage_image = load_image("chest.png")
     storage_button = Button(storage_image,
                             load_image('chest_highlited.png'),
-                            (screen_size[0] - storage_image.get_width() - 20,
-                             174),
+                            (screen_size[0] - storage_image.get_width() - 10,
+                             screen_size[1] - home_image.get_height() - 10),
                             workshop_menu)
 
     powerup_image = load_image("powerup.png")
     powerup_button = Button(powerup_image,
                             load_image('powerup_highlited.png'),
-                            (screen_size[0] - powerup_image.get_width() - storage_image.get_width() - 30,
-                             174),
+                            (screen_size[0] - powerup_image.get_width() - storage_image.get_width() - 20,
+                             screen_size[1] - home_image.get_height() - 10),
                             workshop_menu)
 
     running = True
@@ -208,6 +213,10 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
+                if home_button_2.update(event):
+                    mode = 1
+                    bg_drawn = False
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if board.count and mouse_in_area:
                         board.get_click(event.pos, table, particles_group)
@@ -263,7 +272,7 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if home_button.update(event):
+                if home_button_3.update(event):
                     mode = 1
                     bg_drawn = False
 
