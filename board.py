@@ -21,13 +21,14 @@ class Board:
         self.money = money
         self.width = width
         self.height = height
-        self.board = [[0] * width for _ in range(height)]
+        self.board = [[0] * self.width for _ in range(self.height)]
         # Defaults
         self.left = 10
         self.top = 10
-        self.cell_size = 30
+        self.cell_size = 120
         self.clicked = []
         self.count = 49
+        self.max_count = 49
         self.layers = 1
 
         self.states = [load_image('stone.png'),
@@ -109,8 +110,6 @@ class Board:
         index = self.states.index(state)
 
         if index:
-            resource = RESOURCES_INDEXES[index]
-            table.resources[resource] += 1
             if index == 5:
                 amount = random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[0]
                 self.money.gems += amount
@@ -129,6 +128,9 @@ class Board:
                                  generate_particles('coin.png'),
                                  amount // 2,
                                  particles_group)
+            else:
+                resource = RESOURCES_INDEXES[index]
+                table.resources[resource] += 1
 
         self.board[cell[1]][cell[0]] = state
         self.clicked.append(cell)
@@ -145,3 +147,8 @@ class Board:
         if cell and cell not in self.clicked:
             self.on_click(cell, table, particles_group)
             self.count -= 1
+
+    def restart(self):
+        self.board = [[0] * self.width for _ in range(self.height)]
+        self.count = self.max_count
+        self.clicked = []

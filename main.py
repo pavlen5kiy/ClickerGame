@@ -1,3 +1,4 @@
+import json
 import random
 import sys
 import math
@@ -54,86 +55,68 @@ def main():
     clock = pygame.time.Clock()
     screen, screen_size, screen_rect = screen_init()
 
+    score = {
+        'coins': 0,
+        'gems': 0
+    }
+    with open('score.txt') as score_file:
+        score = json.load(score_file)
+
     mode = 1
+    money = Money(screen, screen_size)
+    money.coins = score['coins']
+    money.gems = score['gems']
+
+    cast_image = load_image("cast.png")
+    db_image = load_image("map.png")
+    wh_image = load_image("workshop.png")
+    sell_image = load_image("sell.png")
+    close_image = load_image("close.png")
+    home_image = load_image("home.png")
+    storage_image = load_image("chest.png")
+    powerup_image = load_image("powerup.png")
+    crush_image = load_image("crush.png")
+    melt_image = load_image("bucket.png")
+
+    super_group = pygame.sprite.Group()
+    main_menu = pygame.sprite.Group()
+    dig_menu = pygame.sprite.Group()
+    workshop_menu = pygame.sprite.Group()
+    particles_group = pygame.sprite.Group()
 
     # MENU
 
     # Sprites
-    super_group = pygame.sprite.Group()
     cursor_image = load_image("cursor.png")
     cursor = Cursor(cursor_image, super_group)
 
-    main_menu = pygame.sprite.Group()
-    db_image = load_image("map.png")
     dig_button = Button(db_image, load_image('map_highlited.png'),
                         (
-                            300,
+                            screen_size[0] // 4 - db_image.get_width() // 2,
                             screen_size[1] // 2 - db_image.get_height() // 2),
                         main_menu)
 
-    wh_image = load_image("workshop.png")
     workshop_button = Button(wh_image,
                              load_image('workshop_highlited.png'),
                              (
-                                 screen_size[0] - wh_image.get_width() - 300,
+                                 screen_size[0] // 2 + screen_size[
+                                     0] // 4 - wh_image.get_width() // 2,
                                  screen_size[
                                      1] // 2 - wh_image.get_height() // 2),
                              main_menu)
 
-    close_image = load_image("close.png")
+    sell_button = Button(sell_image,
+                         load_image('sell_highlited.png'),
+                         (
+                             screen_size[0] // 2 - sell_image.get_width() // 2,
+                             screen_size[
+                                 1] // 3 * 2 - sell_image.get_height() // 2),
+                         main_menu)
+
     close_button = Button(close_image,
                           load_image('close_highlited.png'),
                           (10, screen_size[1] - close_image.get_height() - 10),
                           main_menu)
-
-    # DIGGING
-    width, height = screen_size
-
-    calculated = False
-
-    # Ui
-    table = Table(screen, screen_size)
-    money = Money(screen, screen_size)
-    dig_count = DigCount(screen, screen_size)
-
-    # Board
-    size = 7, 7
-    board = Board(money, *size)
-    cell_size = 120
-    left = width // 2 - board.width * cell_size // 2
-    top = height // 2 - board.height * cell_size // 2
-    board.set_view(left, top, cell_size)
-
-    # Sprites
-    dig_menu = pygame.sprite.Group()
-    pickaxe_cursor = Cursor(load_image("pickaxe_cursor.png"), dig_menu)
-
-    home_image = load_image("home.png")
-    home_button_2 = Button(home_image,
-                           load_image('home_highlited.png'),
-                           (10, screen_size[1] - home_image.get_height() - 10), dig_menu)
-
-    particles_group = pygame.sprite.Group()
-
-    # WORKSHOP
-    workshop_menu = pygame.sprite.Group()
-    home_button_3 = Button(home_image,
-                         load_image('home_highlited.png'),
-                         (10, screen_size[1] - home_image.get_height() - 10), workshop_menu)
-
-    storage_image = load_image("chest.png")
-    storage_button = Button(storage_image,
-                            load_image('chest_highlited.png'),
-                            (screen_size[0] - storage_image.get_width() - 10,
-                             screen_size[1] - home_image.get_height() - 10),
-                            workshop_menu)
-
-    powerup_image = load_image("powerup.png")
-    powerup_button = Button(powerup_image,
-                            load_image('powerup_highlited.png'),
-                            (screen_size[0] - powerup_image.get_width() - storage_image.get_width() - 20,
-                             screen_size[1] - home_image.get_height() - 10),
-                            workshop_menu)
 
     running = True
     bg_drawn = False
@@ -142,6 +125,9 @@ def main():
 
     while running:
         clock.tick(fps)
+
+        if pygame.mouse.get_focused():
+            pygame.mouse.set_visible(False)
 
         if mode == 1:
             if not bg_drawn:
@@ -162,12 +148,83 @@ def main():
                     running = False
 
                 if dig_button.update(event):
+                    # Board
+                    size = 7, 7
+                    board = Board(money, *size)
+                    cell_size = 120
+                    left = screen_size[0] // 2 - board.width * cell_size // 2
+                    top = screen_size[1] // 2 - board.height * cell_size // 2
+                    board.set_view(left, top, cell_size)
+
+                    width, height = screen_size
+
+                    calculated = False
+
+                    # Ui
+                    table = Table(screen, screen_size)
+                    dig_count = DigCount(screen, screen_size)
+
+                    # Sprites
+                    pickaxe_cursor = Cursor(load_image("pickaxe_cursor.png"),
+                                            dig_menu)
+
                     mode = 2
                     bg_drawn = False
 
                 if workshop_button.update(event):
+                    # WORKSHOP
+                    home_button_3 = Button(home_image,
+                                           load_image('home_highlited.png'),
+                                           (10, screen_size[
+                                               1] - home_image.get_height() - 10),
+                                           workshop_menu)
+
+                    storage_button = Button(storage_image,
+                                            load_image('chest_highlited.png'),
+                                            (screen_size[
+                                                 0] - storage_image.get_width() - 10,
+                                             screen_size[
+                                                 1] - storage_image.get_height() - 10),
+                                            workshop_menu)
+
+                    powerup_button = Button(powerup_image,
+                                            load_image(
+                                                'powerup_highlited.png'),
+                                            (screen_size[
+                                                 0] - powerup_image.get_width() - powerup_image.get_width() - 20,
+                                             screen_size[
+                                                 1] - powerup_image.get_height() - 10),
+                                            workshop_menu)
+
+                    crush_button = Button(crush_image,
+                                          load_image('crush_highlited.png'),
+                                          (screen_size[
+                                               0] // 4 - crush_image.get_width() // 2,
+                                           screen_size[
+                                               1] // 2 - crush_image.get_height() // 2),
+                                          workshop_menu)
+
+                    melt_button = Button(melt_image,
+                                         load_image('bucket_highlited.png'),
+                                         (screen_size[
+                                              0] // 2 - melt_image.get_width() // 2,
+                                          screen_size[
+                                              1] // 2 - melt_image.get_height() // 2),
+                                         workshop_menu)
+
+                    cast_button = Button(cast_image,
+                                         load_image('cast_highlited.png'),
+                                         (screen_size[0] // 2 + screen_size[
+                                             0] // 4 - cast_image.get_width() // 2,
+                                          screen_size[
+                                              1] // 2 - cast_image.get_height() // 2),
+                                         workshop_menu)
+
                     mode = 3
                     bg_drawn = False
+
+                if sell_button.update(event):
+                    pass
 
             # Drawing background
             for x in range(x_tiles):
@@ -203,19 +260,20 @@ def main():
                              board.cell_size and board.top <= y <= board.top +
                              board.height * board.cell_size)
 
-            if pygame.mouse.get_focused():
-                pygame.mouse.set_visible(False)
-
-                if mouse_in_area:
-                    render_cursor = True
+            if mouse_in_area:
+                render_cursor = True
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if home_button_2.update(event):
-                    mode = 1
-                    bg_drawn = False
+                if not board.count:
+                    if home_button_2.update(event):
+                        for sprite in dig_menu.sprites():
+                            sprite.kill()
+
+                        mode = 1
+                        bg_drawn = False
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if board.count and mouse_in_area:
@@ -233,6 +291,12 @@ def main():
             if not board.count:
 
                 if not calculated:
+                    home_button_2 = Button(home_image,
+                                           load_image('home_highlited.png'),
+                                           (10, screen_size[
+                                               1] - home_image.get_height() - 10),
+                                           dig_menu)
+
                     for key in table.resources:
                         if table.resources[key] != 0:
                             table.rendering.append(key)
@@ -273,13 +337,25 @@ def main():
                     running = False
 
                 if home_button_3.update(event):
+                    for sprite in workshop_menu.sprites():
+                        sprite.kill()
+
                     mode = 1
                     bg_drawn = False
+
+                if crush_button.update(event):
+                    pass
+
+                if melt_button.update(event):
+                    pass
 
                 if storage_button.update(event):
                     pass
 
                 if powerup_button.update(event):
+                    pass
+
+                if cast_button.update(event):
                     pass
 
             # Drawing background
@@ -296,6 +372,13 @@ def main():
             cursor.update(True)
 
             pygame.display.flip()
+
+    with open('score.txt', 'w') as score_file:
+        score = {
+            'coins': money.coins,
+            'gems': money.gems
+        }
+        json.dump(score, score_file)
 
     pygame.quit()
 

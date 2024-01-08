@@ -53,8 +53,6 @@ class Table(Text):
             'Coal': 0,
             'Iron': 0,
             'Gold': 0,
-            'Artifact': 0,
-            'Diamond': 0
         }
         self.rendering = []
         self.current_rendering = {}
@@ -79,3 +77,16 @@ class Table(Text):
                 self.current_rendering[self.rendering[self.cur_index]] = self.resources[self.rendering[self.cur_index]]
                 self.cur_index += 1
                 self.time_count = 0
+
+    def restart(self):
+        self.resources = {
+            'Coal': 0,
+            'Iron': 0,
+            'Gold': 0,
+        }
+        self.rendering = []
+        self.current_rendering = {}
+        self.cur_index = 0
+        self.time_count = 0
+        self.render_count = len(self.rendering)
+        self.already_rendered = 0

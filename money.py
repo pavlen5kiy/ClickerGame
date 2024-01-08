@@ -26,3 +26,12 @@ class Money(Ui):
         self.screen.blit(gems,
                          (self.width - offset - 75 - gems.get_width(),
                           84 + (gem.get_height() - gems.get_height())))
+
+
+class Resources:
+    def __init__(self):
+        self.resources = {
+            'Coal': 0,
+            'Iron': 0,
+            'Gold': 0,
+        }

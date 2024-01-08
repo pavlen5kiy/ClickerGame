@@ -45,6 +45,8 @@ class Button(Sprite):
                 self.rect.collidepoint(args[0].pos)):
             return True
 
+        return False
+
 
 class Particle(Sprite):
     def __init__(self, pos, dx, dy, particles, *group):
