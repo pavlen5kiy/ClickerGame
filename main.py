@@ -28,7 +28,7 @@ def screen_init():
     screen = pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
     sreen_rect = (0, 0, screen_size[0], screen_size[1])
 
-    pygame.display.set_caption('Board dev')
+    pygame.display.set_caption('ClickerGame')
 
     return screen, screen_size, sreen_rect
 
@@ -52,8 +52,13 @@ def background(screen_size, tiles=None, rand=False, weights=None):
 
 def main():
     pygame.init()
-    clock = pygame.time.Clock()
     screen, screen_size, screen_rect = screen_init()
+
+    pygame.mouse.set_visible(False)
+
+    pygame.display.flip()
+
+    clock = pygame.time.Clock()
 
     score = {
         'coins': 9999,
@@ -162,9 +167,6 @@ def main():
     while running:
         clock.tick(fps)
 
-        if pygame.mouse.get_focused():
-            pygame.mouse.set_visible(False)
-
         if mode == 1:
             if not bg_drawn:
                 # Loading background
@@ -172,9 +174,6 @@ def main():
                 bg = load_image('wood.png')
 
                 bg_drawn = True
-
-            if pygame.mouse.get_focused():
-                pygame.mouse.set_visible(False)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -187,7 +186,7 @@ def main():
                     if score['coins'] - 100 < 0:
                         print('not enough coins')
                     else:
-                        score['coins'] - 100
+                        score['coins'] -= 100
 
                         # Board
                         size = 7, 7
@@ -211,6 +210,14 @@ def main():
                         pickaxe_cursor = Cursor(
                             load_image("pickaxe_cursor.png"),
                             dig_menu)
+
+                        home_button_2 = Button(home_image,
+                                               load_image(
+                                                   'home_highlited.png'),
+                                               (10, screen_size[
+                                                   1] - home_image.get_height() - 10),
+                                               dig_menu)
+                        home_button_2.kill()
 
                         for window in popup_windows:
                             window.show = False
@@ -394,9 +401,6 @@ def main():
                 bg = load_image('bricks.png')
 
                 bg_drawn = True
-
-            if pygame.mouse.get_focused():
-                pygame.mouse.set_visible(False)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
