@@ -10,11 +10,11 @@ MODES = {
 
 
 RESOURCES_INDEXES = {
-    1: 'Coal',
-    2: 'Iron',
-    3: 'Gold',
-    4: 'Artifact',
-    5: 'Diamond'
+    1: 'coal',
+    2: 'iron',
+    3: 'gold',
+    4: 'artifact',
+    5: 'diamond'
 }
 
 GRAVITY = 1

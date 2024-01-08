@@ -50,9 +50,9 @@ class Table(Text):
     def __init__(self, screen, screen_size):
         super().__init__(screen, screen_size)
         self.resources = {
-            'Coal': 0,
-            'Iron': 0,
-            'Gold': 0,
+            'coal': 0,
+            'iron': 0,
+            'gold': 0,
         }
         self.rendering = []
         self.current_rendering = {}
@@ -80,9 +80,9 @@ class Table(Text):
 
     def restart(self):
         self.resources = {
-            'Coal': 0,
-            'Iron': 0,
-            'Gold': 0,
+            'coal': 0,
+            'iron': 0,
+            'gold': 0,
         }
         self.rendering = []
         self.current_rendering = {}

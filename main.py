@@ -54,16 +54,22 @@ def main():
     pygame.init()
     clock = pygame.time.Clock()
     screen, screen_size, screen_rect = screen_init()
-
     score = {
         'coins': 0,
-        'gems': 0
+        'gems': 0,
+        'coal': 0,
+        'iron': 0,
+        'gold': 0
     }
-    with open('score.txt') as score_file:
-        score = json.load(score_file)
+    
+    try:
+        with open('score.txt') as score_file:
+            score = json.load(score_file)
+    except:
+        print('No file created yet')
 
     mode = 1
-    money = Money(screen, screen_size)
+    money = Money(screen, screen_size, score)
     money.coins = score['coins']
     money.gems = score['gems']
 
@@ -77,6 +83,7 @@ def main():
     powerup_image = load_image("powerup.png")
     crush_image = load_image("crush.png")
     melt_image = load_image("bucket.png")
+    settings_image = load_image('settings.png')
 
     super_group = pygame.sprite.Group()
     main_menu = pygame.sprite.Group()
@@ -118,6 +125,13 @@ def main():
                           (10, screen_size[1] - close_image.get_height() - 10),
                           main_menu)
 
+    settings_button = Button(settings_image,
+                             load_image('settings_highlited.png'),
+                             (screen_size[0] - settings_image.get_width() - 10,
+                              screen_size[
+                                  1] - settings_image.get_height() - 10),
+                             main_menu)
+
     running = True
     bg_drawn = False
 
@@ -150,7 +164,7 @@ def main():
                 if dig_button.update(event):
                     # Board
                     size = 7, 7
-                    board = Board(money, *size)
+                    board = Board(score, *size)
                     cell_size = 120
                     left = screen_size[0] // 2 - board.width * cell_size // 2
                     top = screen_size[1] // 2 - board.height * cell_size // 2
@@ -224,6 +238,9 @@ def main():
                     bg_drawn = False
 
                 if sell_button.update(event):
+                    pass
+
+                if settings_button.update(event):
                     pass
 
             # Drawing background
@@ -374,10 +391,6 @@ def main():
             pygame.display.flip()
 
     with open('score.txt', 'w') as score_file:
-        score = {
-            'coins': money.coins,
-            'gems': money.gems
-        }
         json.dump(score, score_file)
 
     pygame.quit()

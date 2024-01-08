@@ -9,7 +9,7 @@ from sound_controller import play_sound
 
 class Board:
     # Creating board
-    def __init__(self, money, width, height):
+    def __init__(self, score, width, height):
 
         '''
 
@@ -17,8 +17,7 @@ class Board:
         :type height: int
         :type count: int
         '''
-
-        self.money = money
+        self.score = score
         self.width = width
         self.height = height
         self.board = [[0] * self.width for _ in range(self.height)]
@@ -112,7 +111,7 @@ class Board:
         if index:
             if index == 5:
                 amount = random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[0]
-                self.money.gems += amount
+                self.score['gems'] += amount
 
                 create_particles(pygame.mouse.get_pos(),
                                  generate_particles('gem.png'),
@@ -122,7 +121,7 @@ class Board:
             elif index == 4:
                 state = random.choice(self.states[4])
                 amount = random.choices(range(20, 50), weights=tuple(range(90, 0, -3)), k=1)[0]
-                self.money.coins += amount
+                self.score['coins'] += amount
 
                 create_particles(pygame.mouse.get_pos(),
                                  generate_particles('coin.png'),
@@ -130,6 +129,7 @@ class Board:
                                  particles_group)
             else:
                 resource = RESOURCES_INDEXES[index]
+                self.score[resource] += 1
                 table.resources[resource] += 1
 
         self.board[cell[1]][cell[0]] = state
