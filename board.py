@@ -8,6 +8,7 @@ from sound_controller import play_sound
 
 
 class Board:
+
     # Creating board
     def __init__(self, score, width, height):
 
@@ -99,6 +100,7 @@ class Board:
         :type cell: tuple
         :type table: Table
         '''
+
         create_particles(pygame.mouse.get_pos(),
                          generate_particles('sand_particle.png'),
                          20,
@@ -110,7 +112,9 @@ class Board:
 
         if index:
             if index == 5:
-                amount = random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[0]
+                amount = \
+                random.choices(range(1, 6), weights=(50, 20, 15, 10, 5), k=1)[
+                    0]
                 self.score['gems'] += amount
 
                 create_particles(pygame.mouse.get_pos(),
@@ -120,7 +124,9 @@ class Board:
 
             elif index == 4:
                 state = random.choice(self.states[4])
-                amount = random.choices(range(20, 50), weights=tuple(range(90, 0, -3)), k=1)[0]
+                amount = \
+                random.choices(range(20, 50), weights=tuple(range(90, 0, -3)),
+                               k=1)[0]
                 self.score['coins'] += amount
 
                 create_particles(pygame.mouse.get_pos(),

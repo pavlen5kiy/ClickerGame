@@ -6,7 +6,7 @@ import math
 import pygame
 from board import Board
 from image_controller import load_image
-from ui import Table, DigCount
+from ui import Table, DigCount, PopUpWindow, Settings
 from money import Money
 from sprite_controller import Cursor, Button
 
@@ -54,14 +54,23 @@ def main():
     pygame.init()
     clock = pygame.time.Clock()
     screen, screen_size, screen_rect = screen_init()
+
     score = {
-        'coins': 0,
-        'gems': 0,
+        'coins': 9999,
+        'gems': 9999,
         'coal': 0,
         'iron': 0,
-        'gold': 0
+        'gold': 0,
+        'iron nuggets': 0,
+        'gold nuggets': 0,
+        'melt iron': 0,
+        'melt gold': 0,
+        'iron ingots': 0,
+        'gold ingots': 0,
+        'crushing clicks': ['value', 'level', 'price', 'value change',
+                            'price change', 'max_level']
     }
-    
+
     try:
         with open('score.txt') as score_file:
             score = json.load(score_file)
@@ -84,12 +93,21 @@ def main():
     crush_image = load_image("crush.png")
     melt_image = load_image("bucket.png")
     settings_image = load_image('settings.png')
+    exchange_image = load_image('exchange.png')
 
     super_group = pygame.sprite.Group()
     main_menu = pygame.sprite.Group()
     dig_menu = pygame.sprite.Group()
     workshop_menu = pygame.sprite.Group()
     particles_group = pygame.sprite.Group()
+
+    powerup_window = PopUpWindow(screen, screen_size, 'POWERUPS', {'a': 0})
+    storage_window = PopUpWindow(screen, screen_size, 'RESOURCES',
+                                 {k: score[k] for k in
+                                  list(score.keys())[2:11]})
+    settings_window = Settings(screen, screen_size, 'SETTINGS', 'You idiot')
+
+    popup_windows = [powerup_window, storage_window, settings_window]
 
     # MENU
 
@@ -132,6 +150,10 @@ def main():
                                   1] - settings_image.get_height() - 10),
                              main_menu)
 
+    exchage_button = Button(exchange_image,
+                            load_image('exchange_highlited.png'),
+                            (10, 10), main_menu)
+
     running = True
     bg_drawn = False
 
@@ -162,28 +184,39 @@ def main():
                     running = False
 
                 if dig_button.update(event):
-                    # Board
-                    size = 7, 7
-                    board = Board(score, *size)
-                    cell_size = 120
-                    left = screen_size[0] // 2 - board.width * cell_size // 2
-                    top = screen_size[1] // 2 - board.height * cell_size // 2
-                    board.set_view(left, top, cell_size)
+                    if score['coins'] - 100 < 0:
+                        print('not enough coins')
+                    else:
+                        score['coins'] - 100
 
-                    width, height = screen_size
+                        # Board
+                        size = 7, 7
+                        board = Board(score, *size)
+                        cell_size = 120
+                        left = screen_size[
+                                   0] // 2 - board.width * cell_size // 2
+                        top = screen_size[
+                                  1] // 2 - board.height * cell_size // 2
+                        board.set_view(left, top, cell_size)
 
-                    calculated = False
+                        width, height = screen_size
 
-                    # Ui
-                    table = Table(screen, screen_size)
-                    dig_count = DigCount(screen, screen_size)
+                        calculated = False
 
-                    # Sprites
-                    pickaxe_cursor = Cursor(load_image("pickaxe_cursor.png"),
-                                            dig_menu)
+                        # Ui
+                        table = Table(screen, screen_size)
+                        dig_count = DigCount(screen, screen_size)
 
-                    mode = 2
-                    bg_drawn = False
+                        # Sprites
+                        pickaxe_cursor = Cursor(
+                            load_image("pickaxe_cursor.png"),
+                            dig_menu)
+
+                        for window in popup_windows:
+                            window.show = False
+
+                        mode = 2
+                        bg_drawn = False
 
                 if workshop_button.update(event):
                     # WORKSHOP
@@ -234,6 +267,9 @@ def main():
                                               1] // 2 - cast_image.get_height() // 2),
                                          workshop_menu)
 
+                    for window in popup_windows:
+                        window.show = False
+
                     mode = 3
                     bg_drawn = False
 
@@ -241,7 +277,18 @@ def main():
                     pass
 
                 if settings_button.update(event):
-                    pass
+                    settings_window.show = not settings_window.show
+                    if settings_window.show:
+                        for window in popup_windows:
+                            if window is not settings_window:
+                                window.show = False
+
+                if exchage_button.update(event):
+                    if score['gems'] - 20 < 0:
+                        print('not enough gems')
+                    else:
+                        score['gems'] -= 20
+                        score['coins'] += 500
 
             # Drawing background
             for x in range(x_tiles):
@@ -251,6 +298,8 @@ def main():
             money.render()
 
             main_menu.draw(screen)
+
+            settings_window.render()
 
             # Cursor render
             super_group.draw(screen)
@@ -357,6 +406,9 @@ def main():
                     for sprite in workshop_menu.sprites():
                         sprite.kill()
 
+                    for window in popup_windows:
+                        window.show = False
+
                     mode = 1
                     bg_drawn = False
 
@@ -367,10 +419,20 @@ def main():
                     pass
 
                 if storage_button.update(event):
-                    pass
+                    storage_window.data = {k: score[k] for k in
+                                           list(score.keys())[2:11]}
+                    storage_window.show = not storage_window.show
+                    if storage_window.show:
+                        for window in popup_windows:
+                            if window is not storage_window:
+                                window.show = False
 
                 if powerup_button.update(event):
-                    pass
+                    powerup_window.show = not powerup_window.show
+                    if powerup_window.show:
+                        for window in popup_windows:
+                            if window is not powerup_window:
+                                window.show = False
 
                 if cast_button.update(event):
                     pass
@@ -383,6 +445,9 @@ def main():
             money.render()
 
             workshop_menu.draw(screen)
+
+            for window in popup_windows:
+                window.render()
 
             # Cursor render
             super_group.draw(screen)

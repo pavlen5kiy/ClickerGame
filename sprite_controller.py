@@ -72,7 +72,8 @@ class Particle(Sprite):
 def create_particles(position, particles, particle_count, *group):
     numbers = range(-5, 6)
     for _ in range(particle_count):
-        Particle(position, random.choice(numbers), random.choice(numbers), particles, *group)
+        Particle(position, random.choice(numbers), random.choice(numbers),
+                 particles, *group)
 
 
 def generate_particles(filename):

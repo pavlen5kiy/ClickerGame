@@ -25,7 +25,8 @@ class DigCount(Text):
         super().__init__(screen, screen_size)
         self.font = pygame.font.Font(None, 100)
         self.color = '#ff0000'
-        self.frames = ['#ff0000', '#cc0000', '#990000', '#660000', '#330000', '#000000']
+        self.frames = ['#ff0000', '#cc0000', '#990000', '#660000', '#330000',
+                       '#000000']
         self.frames = self.frames + self.frames[:-1][::-1]
         self.cur_frame = 0
         self.time_count = 0
@@ -74,7 +75,8 @@ class Table(Text):
             self.time_count += 1
             if self.time_count == 10:
                 self.already_rendered += 1
-                self.current_rendering[self.rendering[self.cur_index]] = self.resources[self.rendering[self.cur_index]]
+                self.current_rendering[self.rendering[self.cur_index]] = \
+                self.resources[self.rendering[self.cur_index]]
                 self.cur_index += 1
                 self.time_count = 0
 
@@ -90,3 +92,72 @@ class Table(Text):
         self.time_count = 0
         self.render_count = len(self.rendering)
         self.already_rendered = 0
+
+
+class PopUpWindow(Text):
+    def __init__(self, screen, screen_size, heading, data):
+        super().__init__(screen, screen_size)
+        self.heading = heading
+        self.data = data
+        self.show = False
+
+    def render(self):
+        if self.show:
+            y = 80
+
+            heading = self.font.render(self.heading, True, '#405273')
+            image = load_image('window.png')
+
+            bg = pygame.Surface(
+                (self.width, self.height))  # the size of your rect
+            bg.set_alpha(128)  # alpha level
+            bg.fill((0, 0, 0))  # this fills the entire surface
+            self.screen.blit(bg, (0, 0))
+
+            self.screen.blit(image, (self.width // 2 - image.get_width() // 2,
+                                     self.height // 2 - image.get_height() // 2))
+            for key in self.data:
+                if self.data[key] != 0:
+                    output = self.font.render(f'{key}: {self.data[key]}', True,
+                                              '#405273')
+                    self.screen.blit(output, (
+                    self.width // 2 - image.get_width() // 2 + 40,
+                    self.height // 2 - image.get_height() // 2 + y))
+                    y += 60
+
+            self.screen.blit(heading,
+                             (self.width // 2 - heading.get_width() // 2,
+                              self.height // 2 - image.get_height() // 2 + 20))
+
+
+class Settings(Text):
+    def __init__(self, screen, screen_size, heading, text):
+        super().__init__(screen, screen_size)
+        self.heading = heading
+        self.text = text
+        self.show = False
+
+    def render(self):
+        if self.show:
+            y = 80
+
+            heading = self.font.render(self.heading, True, '#405273')
+            image = load_image('window.png')
+            output = self.font.render(self.text, True, '#405273')
+
+            bg = pygame.Surface(
+                (self.width, self.height))  # the size of your rect
+            bg.set_alpha(128)  # alpha level
+            bg.fill((0, 0, 0))  # this fills the entire surface
+            self.screen.blit(bg, (0, 0))
+
+            self.screen.blit(image, (self.width // 2 - image.get_width() // 2,
+                                     self.height // 2 - image.get_height() // 2))
+
+            self.screen.blit(output,
+                             (self.width // 2 - image.get_width() // 2 + 40,
+                              self.height // 2 - image.get_height() // 2 + y))
+
+            self.screen.blit(heading,
+                             (self.width // 2 - heading.get_width() // 2,
+                              self.height // 2 - image.get_height() // 2 + 20))

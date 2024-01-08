@@ -11,6 +11,8 @@ class Money(Ui):
         self.score = score
 
     def render(self):
+        global score
+
         coin = load_image('coin.png')
         gem = load_image('gem.png')
         offset = 10

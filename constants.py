@@ -8,7 +8,6 @@ MODES = {
     7: 'selling'
 }
 
-
 RESOURCES_INDEXES = {
     1: 'coal',
     2: 'iron',
