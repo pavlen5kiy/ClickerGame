@@ -73,7 +73,7 @@ class Table(Text):
     def update(self):
         if self.already_rendered < self.render_count:
             self.time_count += 1
-            if self.time_count == 10:
+            if self.time_count == 15:
                 self.already_rendered += 1
                 self.current_rendering[self.rendering[self.cur_index]] = \
                 self.resources[self.rendering[self.cur_index]]

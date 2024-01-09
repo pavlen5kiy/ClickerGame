@@ -27,8 +27,8 @@ class Board:
         self.top = 10
         self.cell_size = 120
         self.clicked = []
-        self.count = 49
-        self.max_count = 49
+        self.count = 5
+        self.max_count = 5
         self.layers = 1
 
         self.states = [load_image('stone.png'),

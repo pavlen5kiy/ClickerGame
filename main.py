@@ -50,6 +50,22 @@ def background(screen_size, tiles=None, rand=False, weights=None):
     return x_tiles, y_tiles
 
 
+def menu_change(closing_group, popup_windows, kill_previous=True):
+    if kill_previous:
+        for sprite in closing_group.sprites():
+            sprite.kill()
+
+    for window in popup_windows:
+        window.show = False
+
+
+def draw_background(screen, bg, x_tiles, y_tiles):
+    # Drawing background
+    for x in range(x_tiles):
+        for y in range(y_tiles):
+            screen.blit(bg, (x * 120, y * 120))
+
+
 def main():
     pygame.init()
     screen, screen_size, screen_rect = screen_init()
@@ -99,12 +115,17 @@ def main():
     melt_image = load_image("bucket.png")
     settings_image = load_image('settings.png')
     exchange_image = load_image('exchange.png')
+    back_image = load_image('back.png')
 
     super_group = pygame.sprite.Group()
     main_menu = pygame.sprite.Group()
     dig_menu = pygame.sprite.Group()
     workshop_menu = pygame.sprite.Group()
     particles_group = pygame.sprite.Group()
+    sell_menu = pygame.sprite.Group()
+    crushing_menu = pygame.sprite.Group()
+    melting_menu = pygame.sprite.Group()
+    casting_menu = pygame.sprite.Group()
 
     powerup_window = PopUpWindow(screen, screen_size, 'POWERUPS', {'a': 0})
     storage_window = PopUpWindow(screen, screen_size, 'RESOURCES',
@@ -219,9 +240,7 @@ def main():
                                                dig_menu)
                         home_button_2.kill()
 
-                        for window in popup_windows:
-                            window.show = False
-
+                        menu_change(main_menu, popup_windows, False)
                         mode = 2
                         bg_drawn = False
 
@@ -274,14 +293,22 @@ def main():
                                               1] // 2 - cast_image.get_height() // 2),
                                          workshop_menu)
 
-                    for window in popup_windows:
-                        window.show = False
-
+                    menu_change(main_menu, popup_windows, False)
                     mode = 3
                     bg_drawn = False
 
                 if sell_button.update(event):
-                    pass
+                    # SELL
+
+                    home_button_7 = Button(home_image,
+                                           load_image('home_highlited.png'),
+                                           (10, screen_size[
+                                               1] - home_image.get_height() - 10),
+                                           sell_menu)
+
+                    menu_change(main_menu, popup_windows, False)
+                    mode = 7
+                    bg_drawn = False
 
                 if settings_button.update(event):
                     settings_window.show = not settings_window.show
@@ -297,10 +324,7 @@ def main():
                         score['gems'] -= 20
                         score['coins'] += 500
 
-            # Drawing background
-            for x in range(x_tiles):
-                for y in range(y_tiles):
-                    screen.blit(bg, (x * 120, y * 120))
+            draw_background(screen, bg, x_tiles, y_tiles)
 
             money.render()
 
@@ -342,9 +366,7 @@ def main():
 
                 if not board.count:
                     if home_button_2.update(event):
-                        for sprite in dig_menu.sprites():
-                            sprite.kill()
-
+                        menu_change(dig_menu, popup_windows)
                         mode = 1
                         bg_drawn = False
 
@@ -352,7 +374,7 @@ def main():
                     if board.count and mouse_in_area:
                         board.get_click(event.pos, table, particles_group)
 
-            # Drawing background
+            # Drawing background. It's specific, so don't use function
             for y in range(y_tiles - 1, -1, -1):
                 for x in range(x_tiles):
                     screen.blit(bg[y][x], (x * 120, y * 120))
@@ -407,20 +429,42 @@ def main():
                     running = False
 
                 if home_button_3.update(event):
-                    for sprite in workshop_menu.sprites():
-                        sprite.kill()
-
-                    for window in popup_windows:
-                        window.show = False
-
+                    menu_change(workshop_menu, popup_windows)
                     mode = 1
                     bg_drawn = False
 
                 if crush_button.update(event):
-                    pass
+                    back_button_4 = Button(back_image,
+                                           load_image('back_highlited.png'),
+                                           (10, screen_size[
+                                               1] - home_image.get_height() - 10),
+                                           crushing_menu)
+
+                    menu_change(workshop_menu, popup_windows, False)
+                    mode = 4
+                    bg_drawn = False
 
                 if melt_button.update(event):
-                    pass
+                    back_button_5 = Button(back_image,
+                                           load_image('back_highlited.png'),
+                                           (10, screen_size[
+                                               1] - home_image.get_height() - 10),
+                                           melting_menu)
+
+                    menu_change(workshop_menu, popup_windows, False)
+                    mode = 5
+                    bg_drawn = False
+
+                if cast_button.update(event):
+                    back_button_6 = Button(back_image,
+                                           load_image('back_highlited.png'),
+                                           (10, screen_size[
+                                               1] - home_image.get_height() - 10),
+                                           casting_menu)
+
+                    menu_change(workshop_menu, popup_windows, False)
+                    mode = 6
+                    bg_drawn = False
 
                 if storage_button.update(event):
                     storage_window.data = {k: score[k] for k in
@@ -438,13 +482,8 @@ def main():
                             if window is not powerup_window:
                                 window.show = False
 
-                if cast_button.update(event):
-                    pass
-
             # Drawing background
-            for x in range(x_tiles):
-                for y in range(y_tiles):
-                    screen.blit(bg, (x * 120, y * 120))
+            draw_background(screen, bg, x_tiles, y_tiles)
 
             money.render()
 
@@ -455,6 +494,112 @@ def main():
 
             # Cursor render
             super_group.draw(screen)
+            cursor.update(True)
+
+            pygame.display.flip()
+
+        if mode == 4:
+            if not bg_drawn:
+                # Loading background
+                x_tiles, y_tiles = background(screen_size, rand=False)
+                bg = load_image('bricks.png')
+
+                bg_drawn = True
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                if back_button_4.update(event):
+                    menu_change(crushing_menu, popup_windows)
+                    mode = 3
+                    bg_drawn = False
+
+            draw_background(screen, bg, x_tiles, y_tiles)
+
+            crushing_menu.draw(screen)
+            super_group.draw(screen)
+
+            cursor.update(True)
+
+            pygame.display.flip()
+
+        if mode == 5:
+            if not bg_drawn:
+                # Loading background
+                x_tiles, y_tiles = background(screen_size, rand=False)
+                bg = load_image('bricks.png')
+
+                bg_drawn = True
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                if back_button_5.update(event):
+                    menu_change(melting_menu, popup_windows)
+                    mode = 3
+                    bg_drawn = False
+
+            draw_background(screen, bg, x_tiles, y_tiles)
+
+            melting_menu.draw(screen)
+            super_group.draw(screen)
+
+            cursor.update(True)
+
+            pygame.display.flip()
+
+        if mode == 6:
+            if not bg_drawn:
+                # Loading background
+                x_tiles, y_tiles = background(screen_size, rand=False)
+                bg = load_image('bricks.png')
+
+                bg_drawn = True
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                if back_button_6.update(event):
+                    menu_change(casting_menu, popup_windows)
+                    mode = 3
+                    bg_drawn = False
+
+            draw_background(screen, bg, x_tiles, y_tiles)
+
+            casting_menu.draw(screen)
+            super_group.draw(screen)
+
+            cursor.update(True)
+
+            pygame.display.flip()
+
+        if mode == 7:
+            if not bg_drawn:
+                # Loading background
+                x_tiles, y_tiles = background(screen_size, rand=False)
+                bg = load_image('pannels.png')
+
+                bg_drawn = True
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                if home_button_7.update(event):
+                    menu_change(sell_menu, popup_windows)
+                    mode = 1
+                    bg_drawn = False
+
+            draw_background(screen, bg, x_tiles, y_tiles)
+
+            sell_menu.draw(screen)
+            money.render()
+
+            super_group.draw(screen)
+
             cursor.update(True)
 
             pygame.display.flip()
