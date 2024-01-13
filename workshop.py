@@ -12,20 +12,22 @@ class Workshop():
         width, height = screen_info.current_w, screen_info.current_h
         screen = pygame.display.set_mode((width, height))
         self.all_sprites = pygame.sprite.Group()
+        self.crusher = False
+        self.number_of_clicks_already_made = 0
 
-        self.coal = 0
-        self.iron = 0
+        self.coal = 1
+        self.iron = 1
         self.crushed_coal = 0
         self.crushed_iron = 0
         self.melted_iron = 0
         self.formed_iron = 0
 
-        self.crushing_coal_time = 7
-        self.crushing_iron_time = 9
-        self.melting_time = 10
-        self.forming_time = 10
+        self.crushing_coal_number_of_clicks = 3
+        self.crushing_iron_number_of_clicks = 4
+        self.melting_time = 7
+        self.forming_time = 8
 
-        factory_image = load_image('workshop.png')
+        factory_image = load_image('фабрика 2.webp')
         factory_image = pygame.transform.scale(factory_image, (screen_info.current_w, screen_info.current_h))
         factory = pygame.sprite.Sprite(self.all_sprites)
         factory.image = factory_image
@@ -83,16 +85,7 @@ class Workshop():
         self.ws_main()
 
     def crushing(self):
-        while self.coal != 0:
-            time.sleep(self.crushing_coal_time)
-            self.coal -= 1
-            self.crushed_coal += random.randint(2, 4)
-        while self.iron != 0:
-            time.sleep(self.crushing_iron_time)
-            self.iron -= 1
-            self.crushed_iron += random.randint(1, 3)
-
-        return self.coal, self.iron, self.crushed_coal, self.crushed_iron
+        self.crusher = True
 
     def melting(self):
         while self.crushed_iron > 1 and self.crushed_coal != 0:
@@ -126,6 +119,7 @@ class Workshop():
                 self.melting()
             elif id(image) == self.crusher_id:
                 self.crushing()
+                print(self.coal, self.iron, self.crushed_iron, self.crushed_coal)
             elif id(image) == self.chest_id:
                 pass
 
@@ -136,9 +130,20 @@ class Workshop():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pygame.quit()
-                if event.type == pygame.MOUSEBUTTONUP:
+                if event.type == pygame.MOUSEBUTTONUP and not self.crusher:
                     for image in self.all_sprites:
                         self.get_event(image, event)
+                if event.type == pygame.MOUSEBUTTONUP and self.crusher:
+                    self.number_of_clicks_already_made += 1
+                    if self.number_of_clicks_already_made == self.crushing_coal_number_of_clicks and self.coal != 0:
+                        self.coal -= 1
+                        self.crushed_coal += random.randint(1, 4)
+                        self.number_of_clicks_already_made = 0
+                    elif self.number_of_clicks_already_made == self.crushing_iron_number_of_clicks and self.iron != 0:
+                        self.iron -= 1
+                        self.crushed_iron += random.randint(1, 3)
+                    elif self.coal == 0 and self.iron == 0:
+                        self.crusher = False
 
 
 if __name__ == '__main__':
