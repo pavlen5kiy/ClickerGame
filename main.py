@@ -4,11 +4,11 @@ import sys
 import math
 
 import pygame
-from board import Board
-from image_controller import load_image
-from ui import Table, DigCount, PopUpWindow, Settings
-from money import Money
-from sprite_controller import Cursor, Button
+from board import *
+from image_controller import *
+from ui import *
+from money import *
+from sprite_controller import *
 
 
 def terminate():
@@ -116,6 +116,9 @@ def main():
     settings_image = load_image('settings.png')
     exchange_image = load_image('exchange.png')
     back_image = load_image('back.png')
+    ok_image = load_image('ok.png')
+    gold_ingots_image = load_image('gold_ingots.png')
+    iron_ingots_image = load_image('iron_ingots.png')
 
     super_group = pygame.sprite.Group()
     main_menu = pygame.sprite.Group()
@@ -132,6 +135,8 @@ def main():
                                  {k: score[k] for k in
                                   list(score.keys())[2:11]})
     settings_window = Settings(screen, screen_size, 'SETTINGS', 'You idiot')
+
+    status_bar = StatusBar(screen, screen_size)
 
     popup_windows = [powerup_window, storage_window, settings_window]
 
@@ -189,10 +194,13 @@ def main():
         clock.tick(fps)
 
         if mode == 1:
+
             if not bg_drawn:
                 # Loading background
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('wood.png')
+
+                status_bar.time_count = 0
 
                 bg_drawn = True
 
@@ -206,7 +214,8 @@ def main():
 
                     if dig_button.update(event):
                         if score['coins'] - 100 < 0:
-                            print('not enough coins')
+                            status_bar.time_count = status_bar.default
+                            status_bar.text = 'Not enough coins!'
                         else:
                             score['coins'] -= 100
 
@@ -248,13 +257,15 @@ def main():
                     if workshop_button.update(event):
                         # WORKSHOP
                         home_button_3 = Button(home_image,
-                                               load_image('home_highlited.png'),
+                                               load_image(
+                                                   'home_highlited.png'),
                                                (10, screen_size[
                                                    1] - home_image.get_height() - 10),
                                                workshop_menu)
 
                         storage_button = Button(storage_image,
-                                                load_image('chest_highlited.png'),
+                                                load_image(
+                                                    'chest_highlited.png'),
                                                 (screen_size[
                                                      0] - storage_image.get_width() - 10,
                                                  screen_size[
@@ -271,7 +282,8 @@ def main():
                                                 workshop_menu)
 
                         crush_button = Button(crush_image,
-                                              load_image('crush_highlited.png'),
+                                              load_image(
+                                                  'crush_highlited.png'),
                                               (screen_size[
                                                    0] // 4 - crush_image.get_width() // 2,
                                                screen_size[
@@ -279,7 +291,8 @@ def main():
                                               workshop_menu)
 
                         melt_button = Button(melt_image,
-                                             load_image('bucket_highlited.png'),
+                                             load_image(
+                                                 'bucket_highlited.png'),
                                              (screen_size[
                                                   0] // 2 - melt_image.get_width() // 2,
                                               screen_size[
@@ -288,10 +301,12 @@ def main():
 
                         cast_button = Button(cast_image,
                                              load_image('cast_highlited.png'),
-                                             (screen_size[0] // 2 + screen_size[
-                                                 0] // 4 - cast_image.get_width() // 2,
-                                              screen_size[
-                                                  1] // 2 - cast_image.get_height() // 2),
+                                             (
+                                                 screen_size[0] // 2 +
+                                                 screen_size[
+                                                     0] // 4 - cast_image.get_width() // 2,
+                                                 screen_size[
+                                                     1] // 2 - cast_image.get_height() // 2),
                                              workshop_menu)
 
                         menu_change(main_menu, popup_windows, False)
@@ -301,22 +316,49 @@ def main():
                     if sell_button.update(event):
                         # SELL
 
-                        home_button_7 = Button(home_image,
-                                               load_image('home_highlited.png'),
-                                               (10, screen_size[
-                                                   1] - home_image.get_height() - 10),
-                                               sell_menu)
+                        if not score['gold ingots'] and not score['iron ingots']:
+                            status_bar.time_count = status_bar.default
+                            status_bar.text = 'You have nothing to sell!'
+                        else:
+                            home_button_7 = Button(home_image,
+                                                   load_image(
+                                                       'home_highlited.png'),
+                                                   (10, screen_size[
+                                                       1] - home_image.get_height() - 10),
+                                                   sell_menu)
 
-                        menu_change(main_menu, popup_windows, False)
-                        mode = 7
-                        bg_drawn = False
+                            gold_button = Button(gold_ingots_image,
+                                                 load_image(
+                                                     'gold_ingots_highlited.png'),
+                                                 (screen_size[
+                                                      0] // 2 + screen_size[
+                                                      0] // 4 - gold_ingots_image.get_width() // 2,
+                                                  screen_size[
+                                                      1] // 2 - gold_ingots_image.get_height() // 2),
+                                                 sell_menu)
+
+                            iron_button = Button(iron_ingots_image,
+                                                 load_image(
+                                                     'iron_ingots_highlited.png'),
+                                                 (screen_size[
+                                                      0] // 4 - iron_ingots_image.get_width() // 2,
+                                                  screen_size[
+                                                      1] // 2 - iron_ingots_image.get_height() // 2),
+                                                 sell_menu)
+
+                            timer = Timer(-1, screen, screen_size)
+
+                            menu_change(main_menu, popup_windows, False)
+                            mode = 7
+                            bg_drawn = False
 
                     if settings_button.update(event):
                         settings_window.show = True
 
                     if exchage_button.update(event):
                         if score['gems'] - 20 < 0:
-                            print('not enough gems')
+                            status_bar.time_count = status_bar.default
+                            status_bar.text = 'Not enough gems!'
                         else:
                             score['gems'] -= 20
                             score['coins'] += 500
@@ -329,7 +371,8 @@ def main():
                     if event.key == pygame.K_c:
                         if not any([window.show for window in popup_windows]):
                             if score['gems'] - 20 < 0:
-                                print('not enough gems')
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = 'Not enough gems!'
                             else:
                                 score['gems'] -= 20
                                 score['coins'] += 500
@@ -343,6 +386,8 @@ def main():
             main_menu.draw(screen)
 
             settings_window.render()
+
+            status_bar.render()
 
             # Cursor render
             super_group.draw(screen)
@@ -361,6 +406,7 @@ def main():
                 bg, x_tiles, y_tiles = background(screen_size, tiles, True,
                                                   (90, 4, 3, 2, 1))
 
+                status_bar.time_count = 0
                 bg_drawn = True
 
             render_cursor = False
@@ -435,6 +481,7 @@ def main():
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('bricks.png')
 
+                status_bar.time_count = 0
                 bg_drawn = True
 
             for event in pygame.event.get():
@@ -449,7 +496,8 @@ def main():
 
                     if crush_button.update(event):
                         back_button_4 = Button(back_image,
-                                               load_image('back_highlited.png'),
+                                               load_image(
+                                                   'back_highlited.png'),
                                                (10, screen_size[
                                                    1] - home_image.get_height() - 10),
                                                crushing_menu)
@@ -460,7 +508,8 @@ def main():
 
                     if melt_button.update(event):
                         back_button_5 = Button(back_image,
-                                               load_image('back_highlited.png'),
+                                               load_image(
+                                                   'back_highlited.png'),
                                                (10, screen_size[
                                                    1] - home_image.get_height() - 10),
                                                melting_menu)
@@ -471,7 +520,8 @@ def main():
 
                     if cast_button.update(event):
                         back_button_6 = Button(back_image,
-                                               load_image('back_highlited.png'),
+                                               load_image(
+                                                   'back_highlited.png'),
                                                (10, screen_size[
                                                    1] - home_image.get_height() - 10),
                                                casting_menu)
@@ -520,6 +570,7 @@ def main():
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('bricks.png')
 
+                status_bar.time_count = 0
                 bg_drawn = True
 
             for event in pygame.event.get():
@@ -547,6 +598,7 @@ def main():
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('bricks.png')
 
+                status_bar.time_count = 0
                 bg_drawn = True
 
             for event in pygame.event.get():
@@ -574,6 +626,7 @@ def main():
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('bricks.png')
 
+                status_bar.time_count = 0
                 bg_drawn = True
 
             for event in pygame.event.get():
@@ -601,24 +654,153 @@ def main():
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('pannels.png')
 
+                pressed = False
+                given = False
+                start = False
+                started = False
+                status_bar.time_count = 0
+                set = False
                 bg_drawn = True
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if home_button_7.update(
-                        event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    menu_change(sell_menu, popup_windows)
-                    mode = 1
-                    bg_drawn = False
+                if not started or given:
+                    if home_button_7.update(
+                            event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        if given:
+                            score[spend] = 0
+                        menu_change(sell_menu, popup_windows)
+                        mode = 1
+                        bg_drawn = False
+                else:
+                    home_button_7.kill()
+
+                if gold_button.update(event) or iron_button.update(event):
+                    if not pressed:
+                        if gold_button.update(event):
+                            if score['gold ingots']:
+                                spend = 'gold ingots'
+                                coins = 500
+                                seconds = 5
+                                velocity = 10
+                                pressed = True
+                            else:
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = "You don't have any gold ingots!"
+                        else:
+                            if score['iron ingots']:
+                                spend = 'iron ingots'
+                                coins = 200
+                                seconds = 10
+                                velocity = 5
+                                pressed = True
+                            else:
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = "You don't have any iron ingots!"
+                    if pressed:
+                        if not started:
+
+                            sell_bar = SellBar((screen_size[0] // 2 - 700,
+                                                screen_size[1] // 2 - 30),
+                                               sell_menu)
+
+                            sell_slider = SellSlider((sell_bar.rect.x,
+                                                      sell_bar.rect.x + sell_bar.image.get_width()),
+                                                     (
+                                                         sell_bar.rect.x + sell_bar.image.get_width() // 2 - 25,
+                                                         screen_size[1] // 2 - 50),
+                                                     sell_menu)
+
+                            sell_slider.velocity = velocity
+
+                            if not start:
+                                started = True
+                                timer.time_count = 60
+                                timer.seconds = 3
+                                gold_button.kill()
+                                iron_button.kill()
+
+                if start:
+                    if timer.seconds != 0:
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            sell_slider.velocity *= -1
+                            sell_slider.rect.x += 2 * sell_slider.velocity // abs(
+                                sell_slider.velocity)
 
             draw_background(screen, bg, x_tiles, y_tiles)
 
             sell_menu.draw(screen)
             money.render()
 
+            if timer.seconds == 0 and not start:
+                start = True
+
+            if start:
+                if not set:
+                    timer.seconds = seconds
+                    set = True
+
+                if timer.seconds != 0:
+                    sell_slider.update()
+
+                    percentage = int((700 - abs(
+                        sell_slider.rect.x + sell_slider.image.get_width() // 2 - (
+                                sell_bar.rect.x + sell_bar.image.get_width() // 2))) / 700 * 100)
+
+                    output = pygame.font.Font(None, 100).render(
+                        str(percentage) + '%',
+                        True, '#d5d6db')
+                    screen.blit(output, (
+                    screen_size[0] // 2 - output.get_width() // 2,
+                    screen_size[1] // 2 - output.get_height() // 2 - 100))
+
+                else:
+                    earned = int(coins * score[spend] * percentage / 100)
+
+                    sell_bar.kill()
+                    sell_slider.kill()
+
+                    output = pygame.font.Font(None, 200).render(
+                        f'{score[spend]} x {percentage}%',
+                        True, '#d5d6db')
+                    screen.blit(output, (
+                    screen_size[0] // 2 - output.get_width() // 2,
+                    screen_size[1] // 2 - output.get_height() // 2))
+
+                    message = pygame.font.Font(None, 100).render(
+                        f"You've earned {earned} coins!",
+                        True, '#d5d6db')
+                    screen.blit(message, (
+                        screen_size[0] // 2 - message.get_width() // 2,
+                        screen_size[1] // 2 - output.get_height() // 2 + 150))
+
+                    if not given:
+                        score['coins'] += earned
+                        sell_menu.add(home_button_7)
+
+                        given = True
+            if not started:
+                iron_amount = pygame.font.Font(None, 100).render(
+                    f"x {score['iron ingots']}", True, '#d5d6db')
+                screen.blit(iron_amount, (screen_size[
+                                                      0] // 4 - iron_amount.get_width() // 2,
+                                                  screen_size[
+                                                      1] // 2 + iron_ingots_image.get_height() // 2 + 50))
+
+                gold_amount = pygame.font.Font(None, 100).render(
+                    f"x {score['gold ingots']}", True, '#d5d6db')
+                screen.blit(gold_amount, (screen_size[
+                                              0] // 2 + screen_size[0] // 4 - gold_amount.get_width() // 2,
+                                          screen_size[
+                                              1] // 2 + gold_ingots_image.get_height() // 2 + 50))
+
             super_group.draw(screen)
+
+            timer.render()
+
+            status_bar.render()
 
             cursor.update(True)
 

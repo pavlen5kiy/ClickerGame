@@ -81,3 +81,32 @@ def generate_particles(filename):
     for scale in (5, 10, 20):
         particles.append(pygame.transform.scale(particles[0], (scale, scale)))
     return particles
+
+
+class SellBar(Sprite):
+    def __init__(self, pos=(0, 0), *group):
+        super().__init__(*group)
+        self.image = load_image('bar.png')
+
+        self.rect = self.image.get_rect()
+
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+
+class SellSlider(Sprite):
+    def __init__(self, edges, pos=(0, 0), *group):
+        super().__init__(*group)
+        self.image = load_image('thing.png')
+
+        self.rect = self.image.get_rect()
+
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+        self.edges = edges
+
+        self.velocity = 5
+    def update(self):
+        if self.edges[0] <= self.rect.x + self.image.get_width() // 2 < self.edges[1]:
+            self.rect.x += self.velocity

@@ -34,7 +34,7 @@ class DigCount(Text):
     def render(self, count):
         font = pygame.font.Font(None, 100)
         if count:
-            count_label = font.render(str(count), True, 'white')
+            count_label = font.render(str(count), True, '#d5d6db')
         else:
             count_label = font.render(str(count), True, self.color)
         self.screen.blit(count_label, (20, 20))
@@ -66,7 +66,7 @@ class Table(Text):
         y = 100
         for key in self.current_rendering:
             output = self.font.render(f'{key}: {self.current_rendering[key]}',
-                                      True, 'white')
+                                      True, '#d5d6db')
             self.screen.blit(output, (20, y))
             y += 60
 
@@ -165,3 +165,40 @@ class Settings(Text):
             self.screen.blit(heading,
                              (self.width // 2 - heading.get_width() // 2,
                               self.height // 2 - image.get_height() // 2 + 20))
+
+
+class StatusBar(Text):
+    def __init__(self, screen, screen_size):
+        super().__init__(screen, screen_size)
+        self.font = pygame.font.Font(None, 75)
+        self.text = ''
+        self.time_count = 120
+        self.default = 120
+
+    def render(self):
+        output = self.font.render(self.text, True, '#d5d6db')
+        if self.time_count > 0:
+            self.time_count -= 1
+        if self.time_count > 0:
+            self.screen.blit(output,
+                             (self.width // 2 - output.get_width() // 2,
+                             20))
+
+
+class Timer(Ui):
+    def __init__(self, seconds, screen, screen_size):
+        super().__init__(screen, screen_size)
+        self.font = pygame.font.Font(None, 200)
+        self.seconds = seconds
+        self.time_count = 60
+
+    def render(self):
+        output = self.font.render(str(self.seconds), True, '#d5d6db')
+        if self.seconds > 0:
+            if self.time_count > 0:
+                self.time_count -= 1
+            if self.time_count == 0:
+                self.time_count = 60
+                self.seconds -= 1
+
+            self.screen.blit(output, (self.width // 2 - output.get_width() // 2, self.height - output.get_height() - 20))
