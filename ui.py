@@ -118,11 +118,15 @@ class PopUpWindow(Text):
                                      self.height // 2 - image.get_height() // 2))
             for key in self.data:
                 if self.data[key] != 0:
-                    output = self.font.render(f'{key}: {self.data[key]}', True,
-                                              '#405273')
-                    self.screen.blit(output, (
+                    name = self.font.render(key.capitalize(), True,'#405273')
+                    value = self.font.render(str(self.data[key]), True,'#405273')
+
+                    self.screen.blit(name, (
                     self.width // 2 - image.get_width() // 2 + 40,
                     self.height // 2 - image.get_height() // 2 + y))
+                    self.screen.blit(value, (
+                        self.width // 2 + image.get_width() // 2 - 40 - value.get_width(),
+                        self.height // 2 - image.get_height() // 2 + y))
                     y += 60
 
             self.screen.blit(heading,

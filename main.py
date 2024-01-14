@@ -127,7 +127,7 @@ def main():
     melting_menu = pygame.sprite.Group()
     casting_menu = pygame.sprite.Group()
 
-    powerup_window = PopUpWindow(screen, screen_size, 'POWERUPS', {'a': 0})
+    powerup_window = PopUpWindow(screen, screen_size, 'UPGRADES', {'a': 0})
     storage_window = PopUpWindow(screen, screen_size, 'RESOURCES',
                                  {k: score[k] for k in
                                   list(score.keys())[2:11]})
@@ -197,132 +197,144 @@ def main():
                 bg_drawn = True
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+                if not any([window.show for window in popup_windows]):
+                    if event.type == pygame.QUIT:
+                        running = False
 
-                if close_button.update(event):
-                    running = False
+                    if close_button.update(event):
+                        running = False
 
-                if dig_button.update(event):
-                    if score['coins'] - 100 < 0:
-                        print('not enough coins')
-                    else:
-                        score['coins'] -= 100
+                    if dig_button.update(event):
+                        if score['coins'] - 100 < 0:
+                            print('not enough coins')
+                        else:
+                            score['coins'] -= 100
 
-                        # Board
-                        size = 7, 7
-                        board = Board(score, *size)
-                        cell_size = 120
-                        left = screen_size[
-                                   0] // 2 - board.width * cell_size // 2
-                        top = screen_size[
-                                  1] // 2 - board.height * cell_size // 2
-                        board.set_view(left, top, cell_size)
+                            # Board
+                            size = 7, 7
+                            board = Board(score, *size)
+                            cell_size = 120
+                            left = screen_size[
+                                       0] // 2 - board.width * cell_size // 2
+                            top = screen_size[
+                                      1] // 2 - board.height * cell_size // 2
+                            board.set_view(left, top, cell_size)
 
-                        width, height = screen_size
+                            width, height = screen_size
 
-                        calculated = False
+                            calculated = False
 
-                        # Ui
-                        table = Table(screen, screen_size)
-                        dig_count = DigCount(screen, screen_size)
+                            # Ui
+                            table = Table(screen, screen_size)
+                            dig_count = DigCount(screen, screen_size)
 
-                        # Sprites
-                        pickaxe_cursor = Cursor(
-                            load_image("pickaxe_cursor.png"),
-                            dig_menu)
+                            # Sprites
+                            pickaxe_cursor = Cursor(
+                                load_image("pickaxe_cursor.png"),
+                                dig_menu)
 
-                        home_button_2 = Button(home_image,
-                                               load_image(
-                                                   'home_highlited.png'),
+                            home_button_2 = Button(home_image,
+                                                   load_image(
+                                                       'home_highlited.png'),
+                                                   (10, screen_size[
+                                                       1] - home_image.get_height() - 10),
+                                                   dig_menu)
+                            home_button_2.kill()
+
+                            menu_change(main_menu, popup_windows, False)
+                            mode = 2
+                            bg_drawn = False
+
+                    if workshop_button.update(event):
+                        # WORKSHOP
+                        home_button_3 = Button(home_image,
+                                               load_image('home_highlited.png'),
                                                (10, screen_size[
                                                    1] - home_image.get_height() - 10),
-                                               dig_menu)
-                        home_button_2.kill()
+                                               workshop_menu)
+
+                        storage_button = Button(storage_image,
+                                                load_image('chest_highlited.png'),
+                                                (screen_size[
+                                                     0] - storage_image.get_width() - 10,
+                                                 screen_size[
+                                                     1] - storage_image.get_height() - 10),
+                                                workshop_menu)
+
+                        powerup_button = Button(powerup_image,
+                                                load_image(
+                                                    'powerup_highlited.png'),
+                                                (screen_size[
+                                                     0] - powerup_image.get_width() - powerup_image.get_width() - 20,
+                                                 screen_size[
+                                                     1] - powerup_image.get_height() - 10),
+                                                workshop_menu)
+
+                        crush_button = Button(crush_image,
+                                              load_image('crush_highlited.png'),
+                                              (screen_size[
+                                                   0] // 4 - crush_image.get_width() // 2,
+                                               screen_size[
+                                                   1] // 2 - crush_image.get_height() // 2),
+                                              workshop_menu)
+
+                        melt_button = Button(melt_image,
+                                             load_image('bucket_highlited.png'),
+                                             (screen_size[
+                                                  0] // 2 - melt_image.get_width() // 2,
+                                              screen_size[
+                                                  1] // 2 - melt_image.get_height() // 2),
+                                             workshop_menu)
+
+                        cast_button = Button(cast_image,
+                                             load_image('cast_highlited.png'),
+                                             (screen_size[0] // 2 + screen_size[
+                                                 0] // 4 - cast_image.get_width() // 2,
+                                              screen_size[
+                                                  1] // 2 - cast_image.get_height() // 2),
+                                             workshop_menu)
 
                         menu_change(main_menu, popup_windows, False)
-                        mode = 2
+                        mode = 3
                         bg_drawn = False
 
-                if workshop_button.update(event):
-                    # WORKSHOP
-                    home_button_3 = Button(home_image,
-                                           load_image('home_highlited.png'),
-                                           (10, screen_size[
-                                               1] - home_image.get_height() - 10),
-                                           workshop_menu)
+                    if sell_button.update(event):
+                        # SELL
 
-                    storage_button = Button(storage_image,
-                                            load_image('chest_highlited.png'),
-                                            (screen_size[
-                                                 0] - storage_image.get_width() - 10,
-                                             screen_size[
-                                                 1] - storage_image.get_height() - 10),
-                                            workshop_menu)
+                        home_button_7 = Button(home_image,
+                                               load_image('home_highlited.png'),
+                                               (10, screen_size[
+                                                   1] - home_image.get_height() - 10),
+                                               sell_menu)
 
-                    powerup_button = Button(powerup_image,
-                                            load_image(
-                                                'powerup_highlited.png'),
-                                            (screen_size[
-                                                 0] - powerup_image.get_width() - powerup_image.get_width() - 20,
-                                             screen_size[
-                                                 1] - powerup_image.get_height() - 10),
-                                            workshop_menu)
+                        menu_change(main_menu, popup_windows, False)
+                        mode = 7
+                        bg_drawn = False
 
-                    crush_button = Button(crush_image,
-                                          load_image('crush_highlited.png'),
-                                          (screen_size[
-                                               0] // 4 - crush_image.get_width() // 2,
-                                           screen_size[
-                                               1] // 2 - crush_image.get_height() // 2),
-                                          workshop_menu)
+                    if settings_button.update(event):
+                        settings_window.show = True
 
-                    melt_button = Button(melt_image,
-                                         load_image('bucket_highlited.png'),
-                                         (screen_size[
-                                              0] // 2 - melt_image.get_width() // 2,
-                                          screen_size[
-                                              1] // 2 - melt_image.get_height() // 2),
-                                         workshop_menu)
+                    if exchage_button.update(event):
+                        if score['gems'] - 20 < 0:
+                            print('not enough gems')
+                        else:
+                            score['gems'] -= 20
+                            score['coins'] += 500
 
-                    cast_button = Button(cast_image,
-                                         load_image('cast_highlited.png'),
-                                         (screen_size[0] // 2 + screen_size[
-                                             0] // 4 - cast_image.get_width() // 2,
-                                          screen_size[
-                                              1] // 2 - cast_image.get_height() // 2),
-                                         workshop_menu)
-
-                    menu_change(main_menu, popup_windows, False)
-                    mode = 3
-                    bg_drawn = False
-
-                if sell_button.update(event):
-                    # SELL
-
-                    home_button_7 = Button(home_image,
-                                           load_image('home_highlited.png'),
-                                           (10, screen_size[
-                                               1] - home_image.get_height() - 10),
-                                           sell_menu)
-
-                    menu_change(main_menu, popup_windows, False)
-                    mode = 7
-                    bg_drawn = False
-
-                if settings_button.update(event):
-                    settings_window.show = not settings_window.show
-                    if settings_window.show:
-                        for window in popup_windows:
-                            if window is not settings_window:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        if any([window.show for window in popup_windows]):
+                            for window in popup_windows:
                                 window.show = False
-
-                if exchage_button.update(event):
-                    if score['gems'] - 20 < 0:
-                        print('not enough gems')
-                    else:
-                        score['gems'] -= 20
-                        score['coins'] += 500
+                    if event.key == pygame.K_c:
+                        if not any([window.show for window in popup_windows]):
+                            if score['gems'] - 20 < 0:
+                                print('not enough gems')
+                            else:
+                                score['gems'] -= 20
+                                score['coins'] += 500
+                    if event.key == pygame.K_q:
+                        running = False
 
             draw_background(screen, bg, x_tiles, y_tiles)
 
@@ -365,7 +377,8 @@ def main():
                     running = False
 
                 if not board.count:
-                    if home_button_2.update(event):
+                    if home_button_2.update(
+                            event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         menu_change(dig_menu, popup_windows)
                         mode = 1
                         bg_drawn = False
@@ -428,59 +441,62 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if home_button_3.update(event):
-                    menu_change(workshop_menu, popup_windows)
-                    mode = 1
-                    bg_drawn = False
+                if not any([window.show for window in popup_windows]):
+                    if home_button_3.update(event):
+                        menu_change(workshop_menu, popup_windows)
+                        mode = 1
+                        bg_drawn = False
 
-                if crush_button.update(event):
-                    back_button_4 = Button(back_image,
-                                           load_image('back_highlited.png'),
-                                           (10, screen_size[
-                                               1] - home_image.get_height() - 10),
-                                           crushing_menu)
+                    if crush_button.update(event):
+                        back_button_4 = Button(back_image,
+                                               load_image('back_highlited.png'),
+                                               (10, screen_size[
+                                                   1] - home_image.get_height() - 10),
+                                               crushing_menu)
 
-                    menu_change(workshop_menu, popup_windows, False)
-                    mode = 4
-                    bg_drawn = False
+                        menu_change(workshop_menu, popup_windows, False)
+                        mode = 4
+                        bg_drawn = False
 
-                if melt_button.update(event):
-                    back_button_5 = Button(back_image,
-                                           load_image('back_highlited.png'),
-                                           (10, screen_size[
-                                               1] - home_image.get_height() - 10),
-                                           melting_menu)
+                    if melt_button.update(event):
+                        back_button_5 = Button(back_image,
+                                               load_image('back_highlited.png'),
+                                               (10, screen_size[
+                                                   1] - home_image.get_height() - 10),
+                                               melting_menu)
 
-                    menu_change(workshop_menu, popup_windows, False)
-                    mode = 5
-                    bg_drawn = False
+                        menu_change(workshop_menu, popup_windows, False)
+                        mode = 5
+                        bg_drawn = False
 
-                if cast_button.update(event):
-                    back_button_6 = Button(back_image,
-                                           load_image('back_highlited.png'),
-                                           (10, screen_size[
-                                               1] - home_image.get_height() - 10),
-                                           casting_menu)
+                    if cast_button.update(event):
+                        back_button_6 = Button(back_image,
+                                               load_image('back_highlited.png'),
+                                               (10, screen_size[
+                                                   1] - home_image.get_height() - 10),
+                                               casting_menu)
 
-                    menu_change(workshop_menu, popup_windows, False)
-                    mode = 6
-                    bg_drawn = False
+                        menu_change(workshop_menu, popup_windows, False)
+                        mode = 6
+                        bg_drawn = False
 
-                if storage_button.update(event):
-                    storage_window.data = {k: score[k] for k in
-                                           list(score.keys())[2:11]}
-                    storage_window.show = not storage_window.show
-                    if storage_window.show:
-                        for window in popup_windows:
-                            if window is not storage_window:
+                    if storage_button.update(event):
+                        storage_window.data = {k: score[k] for k in
+                                               list(score.keys())[2:11]}
+                        storage_window.show = True
+
+                    if powerup_button.update(event):
+                        powerup_window.show = True
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        if any([window.show for window in popup_windows]):
+                            for window in popup_windows:
                                 window.show = False
-
-                if powerup_button.update(event):
-                    powerup_window.show = not powerup_window.show
-                    if powerup_window.show:
-                        for window in popup_windows:
-                            if window is not powerup_window:
-                                window.show = False
+                        else:
+                            menu_change(workshop_menu, popup_windows)
+                            mode = 1
+                            bg_drawn = False
 
             # Drawing background
             draw_background(screen, bg, x_tiles, y_tiles)
@@ -510,7 +526,8 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if back_button_4.update(event):
+                if back_button_4.update(
+                        event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     menu_change(crushing_menu, popup_windows)
                     mode = 3
                     bg_drawn = False
@@ -536,7 +553,8 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if back_button_5.update(event):
+                if back_button_5.update(
+                        event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     menu_change(melting_menu, popup_windows)
                     mode = 3
                     bg_drawn = False
@@ -562,7 +580,8 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if back_button_6.update(event):
+                if back_button_6.update(
+                        event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     menu_change(casting_menu, popup_windows)
                     mode = 3
                     bg_drawn = False
@@ -588,7 +607,8 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if home_button_7.update(event):
+                if home_button_7.update(
+                        event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     menu_change(sell_menu, popup_windows)
                     mode = 1
                     bg_drawn = False
