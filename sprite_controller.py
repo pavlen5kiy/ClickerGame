@@ -107,6 +107,7 @@ class SellSlider(Sprite):
         self.edges = edges
 
         self.velocity = 5
+
     def update(self):
         if self.edges[0] <= self.rect.x + self.image.get_width() // 2 < self.edges[1]:
             self.rect.x += self.velocity

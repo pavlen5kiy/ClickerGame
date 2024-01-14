@@ -726,7 +726,7 @@ def main():
                     if timer.seconds != 0:
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             sell_slider.velocity *= -1
-                            sell_slider.rect.x += 2 * sell_slider.velocity // abs(
+                            sell_slider.rect.x += velocity * sell_slider.velocity // abs(
                                 sell_slider.velocity)
 
             draw_background(screen, bg, x_tiles, y_tiles)
