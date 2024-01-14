@@ -17,15 +17,20 @@ class Workshop():
 
         self.coal = 1
         self.iron = 1
-        self.crushed_coal = 0
-        self.crushed_iron = 0
-        self.melted_iron = 0
-        self.formed_iron = 0
+        self.gold = 0
+        self.iron_nuggets = 0
+        self.gold_nuggets = 0
+        self.melt_iron = 0
+        self.melt_gold = 0
+        self.gold_ingots = 0
+        self.iron_ingots = 0
 
-        self.crushing_coal_number_of_clicks = 3
+        self.crushing_gold_number_of_clicks = 3
         self.crushing_iron_number_of_clicks = 4
-        self.melting_time = 7
+        self.melting_iron_time = 7
+        self.melting_gold_time = 6
         self.forming_time = 8
+        self.number_of_molds = 2
 
         factory_image = load_image('фабрика 2.webp')
         factory_image = pygame.transform.scale(factory_image, (screen_info.current_w, screen_info.current_h))
@@ -88,26 +93,42 @@ class Workshop():
         self.crusher = True
 
     def melting(self):
-        while self.crushed_iron > 1 and self.crushed_coal != 0:
-            self.crushed_coal -= random.randint(1, 3)
-            time.sleep(self.melting_time)
-            if self.crushed_iron == 1:
-                self.crushed_iron -= 1
+        while self.iron_nuggets > 0 and self.coal > 0:
+            self.coal -= random.randint(1, 3)
+            time.sleep(self.melting_iron_time)
+            if self.iron_nuggets == 1:
+                self.iron_nuggets -= 1
             else:
-                self.crushed_iron -= random.randint(1, 2)
-            self.melted_iron += 1
-        if self.crushed_coal < 0:
-            self.crushed_coal = 0
+                self.iron_nuggets -= random.randint(1, 2)
+            self.melt_iron += 1
+        if self.coal < 0:
+            self.coal = 0
 
-        return self.crushed_coal, self.crushed_iron, self.melted_iron
+        while self.gold_nuggets > 1 and self.coal > 0:
+            self.coal -= random.randint(1, 3)
+            time.sleep(self.melting_gold_time)
+            if self.gold_nuggets == 2:
+                self.gold_nuggets -= 2
+            else:
+                self.gold_nuggets -= random.randint(2, 3)
+            self.melt_gold += 1
+        if self.coal < 0:
+            self.coal = 0
+
+        return self.coal, self.iron_nuggets, self.gold_nuggets, self.melt_iron, self.melt_gold
 
     def forming(self):
-        while self.melted_iron >= 3:
-            self.melted_iron -= 3
+        while self.melt_iron >= 3 * self.number_of_molds:
+            self.melt_iron -= 3 * self.number_of_molds
             time.sleep(self.forming_time)
-            self.formed_iron += 1
+            self.iron_ingots += self.number_of_molds
 
-        return self.melted_iron, self.formed_iron
+        while self.melt_gold >= 3 * self.number_of_molds:
+            self.melt_gold -= 3 * self.number_of_molds
+            time.sleep(self.forming_time)
+            self.gold_ingots += self.number_of_molds
+
+        return self.melt_iron, self.melt_gold, self.iron_ingots, self.gold_ingots
 
     def get_event(self, image, event):
         if image.rect.collidepoint(event.pos):
@@ -119,7 +140,6 @@ class Workshop():
                 self.melting()
             elif id(image) == self.crusher_id:
                 self.crushing()
-                print(self.coal, self.iron, self.crushed_iron, self.crushed_coal)
             elif id(image) == self.chest_id:
                 pass
 
@@ -135,14 +155,14 @@ class Workshop():
                         self.get_event(image, event)
                 if event.type == pygame.MOUSEBUTTONUP and self.crusher:
                     self.number_of_clicks_already_made += 1
-                    if self.number_of_clicks_already_made == self.crushing_coal_number_of_clicks and self.coal != 0:
-                        self.coal -= 1
-                        self.crushed_coal += random.randint(1, 4)
+                    if self.number_of_clicks_already_made == self.crushing_gold_number_of_clicks and self.gold != 0:
+                        self.gold -= 1
+                        self.gold_nuggets += random.randint(1, 3)
                         self.number_of_clicks_already_made = 0
                     elif self.number_of_clicks_already_made == self.crushing_iron_number_of_clicks and self.iron != 0:
                         self.iron -= 1
-                        self.crushed_iron += random.randint(1, 3)
-                    elif self.coal == 0 and self.iron == 0:
+                        self.iron_nuggets += random.randint(1, 4)
+                    elif self.gold == 0 and self.iron == 0:
                         self.crusher = False
 
 
