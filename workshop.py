@@ -14,10 +14,11 @@ class Workshop():
         self.all_sprites = pygame.sprite.Group()
         self.crusher = False
         self.number_of_clicks_already_made = 0
+        self.current = "iron"
 
-        self.coal = 1
-        self.iron = 1
-        self.gold = 0
+        self.coal = 200
+        self.iron = 6
+        self.gold = 6
         self.iron_nuggets = 0
         self.gold_nuggets = 0
         self.melt_iron = 0
@@ -25,11 +26,11 @@ class Workshop():
         self.gold_ingots = 0
         self.iron_ingots = 0
 
-        self.crushing_gold_number_of_clicks = 3
-        self.crushing_iron_number_of_clicks = 4
-        self.melting_iron_time = 7
-        self.melting_gold_time = 6
-        self.forming_time = 8
+        self.crushing_gold_number_of_clicks = 2
+        self.crushing_iron_number_of_clicks = 1
+        self.melting_iron_time = 1
+        self.melting_gold_time = 1.5
+        self.forming_time = 2
         self.number_of_molds = 2
 
         factory_image = load_image('фабрика 2.webp')
@@ -93,42 +94,50 @@ class Workshop():
         self.crusher = True
 
     def melting(self):
-        while self.iron_nuggets > 0 and self.coal > 0:
-            self.coal -= random.randint(1, 3)
-            time.sleep(self.melting_iron_time)
-            if self.iron_nuggets == 1:
-                self.iron_nuggets -= 1
-            else:
-                self.iron_nuggets -= random.randint(1, 2)
-            self.melt_iron += 1
-        if self.coal < 0:
-            self.coal = 0
-
-        while self.gold_nuggets > 1 and self.coal > 0:
-            self.coal -= random.randint(1, 3)
-            time.sleep(self.melting_gold_time)
-            if self.gold_nuggets == 2:
-                self.gold_nuggets -= 2
-            else:
-                self.gold_nuggets -= random.randint(2, 3)
-            self.melt_gold += 1
-        if self.coal < 0:
-            self.coal = 0
-
-        return self.coal, self.iron_nuggets, self.gold_nuggets, self.melt_iron, self.melt_gold
+        if self.current == 'iron':
+            while self.iron_nuggets > 0 and self.coal > 0:
+                self.coal -= random.randint(1, 3)
+                time.sleep(self.melting_iron_time)
+                if self.iron_nuggets == 1:
+                    self.iron_nuggets -= 1
+                else:
+                    self.iron_nuggets -= random.randint(1, 2)
+                self.melt_iron += 1
+            if self.coal < 0:
+                self.coal = 0
+        else:
+            while self.gold_nuggets > 1 and self.coal > 0:
+                self.coal -= random.randint(1, 3)
+                time.sleep(self.melting_gold_time)
+                if self.gold_nuggets == 2:
+                    self.gold_nuggets -= 2
+                else:
+                    self.gold_nuggets -= random.randint(2, 3)
+                self.melt_gold += 1
+            if self.coal < 0:
+                self.coal = 0
 
     def forming(self):
-        while self.melt_iron >= 3 * self.number_of_molds:
-            self.melt_iron -= 3 * self.number_of_molds
-            time.sleep(self.forming_time)
-            self.iron_ingots += self.number_of_molds
-
-        while self.melt_gold >= 3 * self.number_of_molds:
-            self.melt_gold -= 3 * self.number_of_molds
-            time.sleep(self.forming_time)
-            self.gold_ingots += self.number_of_molds
-
-        return self.melt_iron, self.melt_gold, self.iron_ingots, self.gold_ingots
+        if self.current == 'iron':
+            while self.melt_iron >= 3 * self.number_of_molds:
+                self.melt_iron -= 3 * self.number_of_molds
+                time.sleep(self.forming_time)
+                self.iron_ingots += self.number_of_molds
+            else:
+                q = self.melt_iron // 3
+                self.melt_iron -= 3 * q
+                time.sleep(self.forming_time)
+                self.iron_ingots += q
+        else:
+            while self.melt_gold >= 3 * self.number_of_molds:
+                self.melt_gold -= 3 * self.number_of_molds
+                time.sleep(self.forming_time)
+                self.gold_ingots += self.number_of_molds
+            else:
+                q = self.melt_gold // 3
+                self.melt_gold -= 3 * q
+                time.sleep(self.forming_time)
+                self.gold_ingots += q
 
     def get_event(self, image, event):
         if image.rect.collidepoint(event.pos):
@@ -155,13 +164,14 @@ class Workshop():
                         self.get_event(image, event)
                 if event.type == pygame.MOUSEBUTTONUP and self.crusher:
                     self.number_of_clicks_already_made += 1
+                    if self.number_of_clicks_already_made == self.crushing_iron_number_of_clicks and self.iron != 0:
+                        self.iron -= 1
+                        self.iron_nuggets += random.randint(1, 4)
+                        self.number_of_clicks_already_made = 0
                     if self.number_of_clicks_already_made == self.crushing_gold_number_of_clicks and self.gold != 0:
                         self.gold -= 1
                         self.gold_nuggets += random.randint(1, 3)
                         self.number_of_clicks_already_made = 0
-                    elif self.number_of_clicks_already_made == self.crushing_iron_number_of_clicks and self.iron != 0:
-                        self.iron -= 1
-                        self.iron_nuggets += random.randint(1, 4)
                     elif self.gold == 0 and self.iron == 0:
                         self.crusher = False
 
