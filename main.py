@@ -94,6 +94,14 @@ def main():
         'exchange gems': [20, [20, 15, 10], [0, 10000, 20000], 'gem']
     }
 
+    maps = {
+        'Wastelands': [3, 100],
+        'Hills': [4, 200],
+        'Lake': [5, 500],
+        'Canyon': [6, 700],
+        'Mountains': [7, 1000]
+    }
+
     try:
         with open('score.txt') as score_file:
             score = json.load(score_file)
@@ -133,6 +141,7 @@ def main():
     melting_menu = pygame.sprite.Group()
     casting_menu = pygame.sprite.Group()
     powerup_buttons = pygame.sprite.Group()
+    map_buttons = pygame.sprite.Group()
 
     powerup_window = PopUpWindow(screen, screen_size, 'UPGRADES', {k: f'{score[k][-1]} {score[k][0]}' for k in
                                   list(score.keys())[11:]})
@@ -140,17 +149,29 @@ def main():
                                  {k: score[k] for k in
                                   list(score.keys())[2:11]})
     settings_window = Settings(screen, screen_size, 'SETTINGS', 'You idiot')
+    maps_window = PopUpWindow(screen, screen_size, 'MAPS',
+                                 {k: f'{maps[k][0]}x{maps[k][0]}' for k in
+                                  list(maps.keys())})
 
     status_bar = StatusBar(screen, screen_size)
 
-    popup_windows = [powerup_window, storage_window, settings_window]
+    popup_windows = [powerup_window, storage_window, settings_window, maps_window]
 
     powerup_buttons_list = []
     for i in range(4):
-        powerup_buttons_list.append(Button(load_image('upgrade_arrow.png'),
-                                   'upgrade_arrow_highlited.png',
-                                   (screen_size[0] // 2 + window_image.get_width() // 2 - 60,
-                                    screen_size[1] // 2 - window_image.get_height() // 2 + 70 + 60 * i)))
+        powerup_buttons_list.append(Button(load_image('arrow.png'),
+                                   'arrow.png',
+                                   (screen_size[0] // 2 + window_image.get_width() // 2 - 67,
+                                    screen_size[1] // 2 - window_image.get_height() // 2 + 80 + 60 * i)))
+
+    map_buttons_list = []
+    for i in range(5):
+        map_buttons_list.append(Button(load_image('arrow.png'),
+                                           'arrow.png',
+                                           (screen_size[
+                                                0] // 2 + window_image.get_width() // 2 - 67,
+                                            screen_size[
+                                                1] // 2 - window_image.get_height() // 2 + 80 + 60 * i)))
 
     # MENU
 
@@ -213,6 +234,7 @@ def main():
                 bg = load_image('wood.png')
 
                 status_bar.time_count = 0
+                choosen = False
 
                 bg_drawn = True
 
@@ -225,47 +247,18 @@ def main():
                         running = False
 
                     if dig_button.update(event):
-                        if score['coins'] - 100 < 0:
-                            status_bar.time_count = status_bar.default
-                            status_bar.text = 'Not enough coins!'
-                        else:
-                            score['coins'] -= 100
+                        maps_window.show = True
+                        current = 0
 
-                            # Board
-                            size = 7, 7
-                            board = Board(score, *size)
-                            board.count = score['digging'][0]
-                            cell_size = 120
-                            left = screen_size[
-                                       0] // 2 - board.width * cell_size // 2
-                            top = screen_size[
-                                      1] // 2 - board.height * cell_size // 2
-                            board.set_view(left, top, cell_size)
+                        map = list(maps.keys())[current]
+                        coins = maps[map][1]
+                        msg = f"Press [E]. Price: {coins}"
 
-                            width, height = screen_size
+                        status_bar.time_count = status_bar.default
+                        status_bar.text = msg
 
-                            calculated = False
-
-                            # Ui
-                            table = Table(screen, screen_size)
-                            dig_count = DigCount(screen, screen_size)
-
-                            # Sprites
-                            pickaxe_cursor = Cursor(
-                                load_image("pickaxe_cursor.png"),
-                                dig_menu)
-
-                            home_button_2 = Button(home_image,
-                                                   load_image(
-                                                       'home_highlited.png'),
-                                                   (10, screen_size[
-                                                       1] - home_image.get_height() - 10),
-                                                   dig_menu)
-                            home_button_2.kill()
-
-                            menu_change(main_menu, popup_windows, False)
-                            mode = 2
-                            bg_drawn = False
+                        map_buttons = pygame.sprite.Group()
+                        map_buttons.add(map_buttons_list[current])
 
                     if workshop_button.update(event):
                         # WORKSHOP
@@ -381,6 +374,7 @@ def main():
                         if any([window.show for window in popup_windows]):
                             for window in popup_windows:
                                 window.show = False
+                            status_bar.time_count = 0
                     if event.key == pygame.K_c:
                         if not any([window.show for window in popup_windows]):
                             if score['gems'] - score['exchange gems'][0] < 0:
@@ -392,13 +386,121 @@ def main():
                     if event.key == pygame.K_q:
                         running = False
 
+                    if maps_window.show:
+                        map = list(maps.keys())[current]
+                        coins = maps[map][1]
+                        msg = f"Press [E]. Price: {coins}"
+
+                        if event.key == pygame.K_DOWN:
+                            if 0 <= current + 1 <= len(map_buttons_list) - 1:
+                                current += 1
+                                map_buttons = pygame.sprite.Group()
+                                map_buttons.add(map_buttons_list[current])
+
+                                map = list(maps.keys())[current]
+
+                                coins = maps[map][1]
+                                msg = f"Press [E]. Price: {coins}"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                            else:
+                                current = 0
+                                map_buttons = pygame.sprite.Group()
+                                map_buttons.add(map_buttons_list[current])
+
+                                map = list(maps.keys())[current]
+
+                                coins = maps[map][1]
+                                msg = f"Press [E]. Price: {coins}"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                        if event.key == pygame.K_UP:
+                            if 0 <= current - 1 <= len(map_buttons_list) - 1:
+                                current -= 1
+                                map_buttons = pygame.sprite.Group()
+                                map_buttons.add(map_buttons_list[current])
+
+                                map = list(maps.keys())[current]
+
+                                coins = maps[map][1]
+                                msg = f"Press [E]. Price: {coins}"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                            else:
+                                current = len(map_buttons_list) - 1
+                                map_buttons = pygame.sprite.Group()
+                                map_buttons.add(map_buttons_list[current])
+
+                                map = list(maps.keys())[current]
+
+                                coins = maps[map][1]
+                                msg = f"Press [E]. Price: {coins}"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                        if event.key == pygame.K_e:
+                            status_bar.time_count = status_bar.default
+                            map = list(maps.keys())[current]
+                            size = maps[map][0], maps[map][0]
+                            coins = maps[map][1]
+                            if score['coins'] - coins >= 0:
+                                score['coins'] -= coins
+                                choosen = True
+                            else:
+                                status_bar.text = f"Not enough coins!"
+
+            if choosen:
+                # Board
+                board = Board(score, *size)
+                board.count = score['digging'][0]
+                cell_size = 120
+                left = screen_size[
+                           0] // 2 - board.width * cell_size // 2
+                top = screen_size[
+                          1] // 2 - board.height * cell_size // 2
+                board.set_view(left, top, cell_size)
+
+                width, height = screen_size
+
+                calculated = False
+
+                # Ui
+                table = Table(screen, screen_size)
+                dig_count = DigCount(screen, screen_size)
+
+                # Sprites
+                pickaxe_cursor = Cursor(
+                    load_image("pickaxe_cursor.png"),
+                    dig_menu)
+
+                home_button_2 = Button(home_image,
+                                       load_image(
+                                           'home_highlited.png'),
+                                       (10, screen_size[
+                                           1] - home_image.get_height() - 10),
+                                       dig_menu)
+                home_button_2.kill()
+
+                menu_change(main_menu, popup_windows, False)
+                mode = 2
+                bg_drawn = False
+
             draw_background(screen, bg, x_tiles, y_tiles)
 
             money.render()
 
             main_menu.draw(screen)
 
-            settings_window.render()
+            for window in popup_windows:
+                window.render()
+
+            if maps_window.show:
+                status_bar.time_count = status_bar.default
+                maps_window.data = {k: f'{maps[k][0]}x{maps[k][0]}' for k in list(maps.keys())}
+                map_buttons.draw(screen)
 
             status_bar.render()
 
@@ -435,7 +537,7 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
 
-                if not board.count:
+                if not board.count or board.width**2 == len(board.clicked):
                     if home_button_2.update(
                             event) or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         menu_change(dig_menu, popup_windows)
@@ -455,7 +557,7 @@ def main():
             dig_count.render(board.count)
             money.render()
 
-            if not board.count:
+            if not board.count or board.width**2 == len(board.clicked):
 
                 if not calculated:
                     home_button_2 = Button(home_image,
@@ -572,6 +674,7 @@ def main():
                         if any([window.show for window in popup_windows]):
                             for window in popup_windows:
                                 window.show = False
+                            status_bar.time_count = 0
                         else:
                             menu_change(workshop_menu, popup_windows)
                             mode = 1
