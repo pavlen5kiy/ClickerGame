@@ -88,8 +88,10 @@ def main():
         'melt gold': 0,
         'iron ingots': 0,
         'gold ingots': 0,
-        'crushing clicks': ['value', 'level', 'price', 'value change',
-                            'price change', 'max_level']
+        'digging': [5, [5, 10, 20, 35, 49], [0, 200, 600, 1000, 1500], 'clk'],
+        'crushing': [10, [10, 7, 5, 3], [0, 200, 600, 1000], 'clk'],
+        'melting time': [10, [10, 7, 5, 3], [0, 500, 1000, 2000], 'sec'],
+        'exchange gems': [20, [20, 15, 10], [0, 10000, 20000], 'gem']
     }
 
     try:
@@ -119,6 +121,7 @@ def main():
     ok_image = load_image('ok.png')
     gold_ingots_image = load_image('gold_ingots.png')
     iron_ingots_image = load_image('iron_ingots.png')
+    window_image = load_image('window.png')
 
     super_group = pygame.sprite.Group()
     main_menu = pygame.sprite.Group()
@@ -129,8 +132,10 @@ def main():
     crushing_menu = pygame.sprite.Group()
     melting_menu = pygame.sprite.Group()
     casting_menu = pygame.sprite.Group()
+    powerup_buttons = pygame.sprite.Group()
 
-    powerup_window = PopUpWindow(screen, screen_size, 'UPGRADES', {'a': 0})
+    powerup_window = PopUpWindow(screen, screen_size, 'UPGRADES', {k: f'{score[k][-1]} {score[k][0]}' for k in
+                                  list(score.keys())[11:]})
     storage_window = PopUpWindow(screen, screen_size, 'RESOURCES',
                                  {k: score[k] for k in
                                   list(score.keys())[2:11]})
@@ -139,6 +144,13 @@ def main():
     status_bar = StatusBar(screen, screen_size)
 
     popup_windows = [powerup_window, storage_window, settings_window]
+
+    powerup_buttons_list = []
+    for i in range(4):
+        powerup_buttons_list.append(Button(load_image('upgrade_arrow.png'),
+                                   'upgrade_arrow_highlited.png',
+                                   (screen_size[0] // 2 + window_image.get_width() // 2 - 60,
+                                    screen_size[1] // 2 - window_image.get_height() // 2 + 70 + 60 * i)))
 
     # MENU
 
@@ -222,6 +234,7 @@ def main():
                             # Board
                             size = 7, 7
                             board = Board(score, *size)
+                            board.count = score['digging'][0]
                             cell_size = 120
                             left = screen_size[
                                        0] // 2 - board.width * cell_size // 2
@@ -356,11 +369,11 @@ def main():
                         settings_window.show = True
 
                     if exchage_button.update(event):
-                        if score['gems'] - 20 < 0:
+                        if score['gems'] - score['exchange gems'][0] < 0:
                             status_bar.time_count = status_bar.default
                             status_bar.text = 'Not enough gems!'
                         else:
-                            score['gems'] -= 20
+                            score['gems'] -= score['exchange gems'][0]
                             score['coins'] += 500
 
                 if event.type == pygame.KEYDOWN:
@@ -370,11 +383,11 @@ def main():
                                 window.show = False
                     if event.key == pygame.K_c:
                         if not any([window.show for window in popup_windows]):
-                            if score['gems'] - 20 < 0:
+                            if score['gems'] - score['exchange gems'][0] < 0:
                                 status_bar.time_count = status_bar.default
                                 status_bar.text = 'Not enough gems!'
                             else:
-                                score['gems'] -= 20
+                                score['gems'] -= score['exchange gems'][0]
                                 score['coins'] += 500
                     if event.key == pygame.K_q:
                         running = False
@@ -537,6 +550,22 @@ def main():
 
                     if powerup_button.update(event):
                         powerup_window.show = True
+                        current = 0
+
+                        upgrade = list(score.keys())[11:][current]
+                        next = score[upgrade][1].index(score[upgrade][0]) + 1
+                        if next <= len(score[upgrade][1]) - 1:
+                            coins = score[upgrade][2][
+                                score[upgrade][1].index(score[upgrade][0]) + 1]
+                            msg = f"Press [U]. Price: {coins}"
+                        else:
+                            msg = "You've reached your max!"
+
+                        status_bar.time_count = status_bar.default
+                        status_bar.text = msg
+
+                        powerup_buttons = pygame.sprite.Group()
+                        powerup_buttons.add(powerup_buttons_list[current])
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
@@ -548,6 +577,102 @@ def main():
                             mode = 1
                             bg_drawn = False
 
+                    if powerup_window.show:
+                        upgrade = list(score.keys())[11:][current]
+                        next = score[upgrade][1].index(score[upgrade][0]) + 1
+                        if next <= len(score[upgrade][1]) - 1:
+                            coins = score[upgrade][2][score[upgrade][1].index(score[upgrade][0]) + 1]
+                            msg = f"Press [U]. Price: {coins}"
+                        else:
+                            msg = "You've reached your max!"
+
+                        if event.key == pygame.K_DOWN:
+                            if 0 <= current + 1 <= len(powerup_buttons_list) - 1:
+                                current += 1
+                                powerup_buttons = pygame.sprite.Group()
+                                powerup_buttons.add(powerup_buttons_list[current])
+
+                                upgrade = list(score.keys())[11:][current]
+                                next = score[upgrade][1].index(
+                                    score[upgrade][0]) + 1
+                                if next <= len(score[upgrade][1]) - 1:
+                                    coins = score[upgrade][2][
+                                        score[upgrade][1].index(
+                                            score[upgrade][0]) + 1]
+                                    msg = f"Press [U]. Price: {coins}"
+                                else:
+                                    msg = "You've reached your max!"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                            else:
+                                current = 0
+                                powerup_buttons = pygame.sprite.Group()
+                                powerup_buttons.add(powerup_buttons_list[current])
+
+                                upgrade = list(score.keys())[11:][current]
+                                next = score[upgrade][1].index(
+                                    score[upgrade][0]) + 1
+                                if next <= len(score[upgrade][1]) - 1:
+                                    coins = score[upgrade][2][
+                                        score[upgrade][1].index(
+                                            score[upgrade][0]) + 1]
+                                    msg = f"Press [U]. Price: {coins}"
+                                else:
+                                    msg = "You've reached your max!"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                        if event.key == pygame.K_UP:
+                            if 0 <= current - 1 <= len(powerup_buttons_list) - 1:
+                                current -= 1
+                                powerup_buttons = pygame.sprite.Group()
+                                powerup_buttons.add(powerup_buttons_list[current])
+
+                                upgrade = list(score.keys())[11:][current]
+                                next = score[upgrade][1].index(
+                                    score[upgrade][0]) + 1
+                                if next <= len(score[upgrade][1]) - 1:
+                                    coins = score[upgrade][2][
+                                        score[upgrade][1].index(
+                                            score[upgrade][0]) + 1]
+                                    msg = f"Press [U]. Price: {coins}"
+                                else:
+                                    msg = "You've reached your max!"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                            else:
+                                current = len(powerup_buttons_list) - 1
+                                powerup_buttons = pygame.sprite.Group()
+                                powerup_buttons.add(powerup_buttons_list[current])
+
+                                upgrade = list(score.keys())[11:][current]
+                                next = score[upgrade][1].index(
+                                    score[upgrade][0]) + 1
+                                if next <= len(score[upgrade][1]) - 1:
+                                    coins = score[upgrade][2][
+                                        score[upgrade][1].index(
+                                            score[upgrade][0]) + 1]
+                                    msg = f"Press [U]. Price: {coins}"
+                                else:
+                                    msg = "You've reached your max!"
+
+                                status_bar.time_count = status_bar.default
+                                status_bar.text = msg
+                        if event.key == pygame.K_u:
+                                status_bar.time_count = status_bar.default
+                                if next <= len(score[upgrade][1]) - 1:
+                                    coins = score[upgrade][2][score[upgrade][1].index(score[upgrade][0]) + 1]
+                                    if score['coins'] - coins >= 0:
+                                        score[upgrade][0] = score[upgrade][1][next]
+                                        score['coins'] -= coins
+                                        status_bar.text = f"You've paid {coins} coins!"
+                                    else:
+                                        status_bar.text = f"Not enough coins!"
+                                else:
+                                    status_bar.text = "You've reached your max!"
+
             # Drawing background
             draw_background(screen, bg, x_tiles, y_tiles)
 
@@ -557,6 +682,13 @@ def main():
 
             for window in popup_windows:
                 window.render()
+
+            if powerup_window.show:
+                status_bar.time_count = status_bar.default
+                powerup_window.data = {k: f'{score[k][-1]} {score[k][0]}' for k in list(score.keys())[11:]}
+                powerup_buttons.draw(screen)
+
+            status_bar.render()
 
             # Cursor render
             super_group.draw(screen)
@@ -751,7 +883,7 @@ def main():
 
                     output = pygame.font.Font(None, 100).render(
                         str(percentage) + '%',
-                        True, '#d5d6db')
+                        True, 'white')
                     screen.blit(output, (
                     screen_size[0] // 2 - output.get_width() // 2,
                     screen_size[1] // 2 - output.get_height() // 2 - 100))
@@ -764,14 +896,14 @@ def main():
 
                     output = pygame.font.Font(None, 200).render(
                         f'{score[spend]} x {percentage}%',
-                        True, '#d5d6db')
+                        True, 'white')
                     screen.blit(output, (
                     screen_size[0] // 2 - output.get_width() // 2,
                     screen_size[1] // 2 - output.get_height() // 2))
 
                     message = pygame.font.Font(None, 100).render(
                         f"You've earned {earned} coins!",
-                        True, '#d5d6db')
+                        True, 'white')
                     screen.blit(message, (
                         screen_size[0] // 2 - message.get_width() // 2,
                         screen_size[1] // 2 - output.get_height() // 2 + 150))
@@ -781,27 +913,27 @@ def main():
                         sell_menu.add(home_button_7)
 
                         given = True
+
             if not started:
                 iron_amount = pygame.font.Font(None, 100).render(
-                    f"x {score['iron ingots']}", True, '#d5d6db')
+                    f"x {score['iron ingots']}", True, 'white')
                 screen.blit(iron_amount, (screen_size[
                                                       0] // 4 - iron_amount.get_width() // 2,
                                                   screen_size[
                                                       1] // 2 + iron_ingots_image.get_height() // 2 + 50))
 
                 gold_amount = pygame.font.Font(None, 100).render(
-                    f"x {score['gold ingots']}", True, '#d5d6db')
+                    f"x {score['gold ingots']}", True, 'white')
                 screen.blit(gold_amount, (screen_size[
                                               0] // 2 + screen_size[0] // 4 - gold_amount.get_width() // 2,
                                           screen_size[
                                               1] // 2 + gold_ingots_image.get_height() // 2 + 50))
 
-            super_group.draw(screen)
-
             timer.render()
 
             status_bar.render()
 
+            super_group.draw(screen)
             cursor.update(True)
 
             pygame.display.flip()

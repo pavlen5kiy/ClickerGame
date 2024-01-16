@@ -1,5 +1,6 @@
 import pygame
 from image_controller import load_image
+from sprite_controller import Button
 
 
 class Ui:
@@ -34,7 +35,7 @@ class DigCount(Text):
     def render(self, count):
         font = pygame.font.Font(None, 100)
         if count:
-            count_label = font.render(str(count), True, '#d5d6db')
+            count_label = font.render(str(count), True, 'white')
         else:
             count_label = font.render(str(count), True, self.color)
         self.screen.blit(count_label, (20, 20))
@@ -66,7 +67,7 @@ class Table(Text):
         y = 100
         for key in self.current_rendering:
             output = self.font.render(f'{key}: {self.current_rendering[key]}',
-                                      True, '#d5d6db')
+                                      True, 'white')
             self.screen.blit(output, (20, y))
             y += 60
 
@@ -122,10 +123,10 @@ class PopUpWindow(Text):
                     value = self.font.render(str(self.data[key]), True,'#405273')
 
                     self.screen.blit(name, (
-                    self.width // 2 - image.get_width() // 2 + 40,
+                    self.width // 2 - image.get_width() // 2 + 15,
                     self.height // 2 - image.get_height() // 2 + y))
                     self.screen.blit(value, (
-                        self.width // 2 + image.get_width() // 2 - 40 - value.get_width(),
+                        self.width // 2 + image.get_width() // 2 - 70 - value.get_width(),
                         self.height // 2 - image.get_height() // 2 + y))
                     y += 60
 
@@ -176,7 +177,7 @@ class StatusBar(Text):
         self.default = 120
 
     def render(self):
-        output = self.font.render(self.text, True, '#d5d6db')
+        output = self.font.render(self.text, True, 'white')
         if self.time_count > 0:
             self.time_count -= 1
         if self.time_count > 0:
@@ -193,7 +194,7 @@ class Timer(Ui):
         self.time_count = 60
 
     def render(self):
-        output = self.font.render(str(self.seconds), True, '#d5d6db')
+        output = self.font.render(str(self.seconds), True, 'white')
         if self.seconds > 0:
             if self.time_count > 0:
                 self.time_count -= 1
