@@ -233,6 +233,11 @@ def main():
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('wood.png')
 
+                pygame.mixer.music.stop()
+                pygame.mixer.music.load('data/coralchorus.mp3')
+                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.play(-1)
+
                 status_bar.time_count = 0
                 choosen = False
 
@@ -261,6 +266,11 @@ def main():
                         map_buttons.add(map_buttons_list[current])
 
                     if workshop_button.update(event):
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.load('data/saxygroove.mp3')
+                        pygame.mixer.music.set_volume(0.5)
+                        pygame.mixer.music.play(-1)
+
                         # WORKSHOP
                         home_button_3 = Button(home_image,
                                                load_image(
@@ -360,6 +370,10 @@ def main():
 
                     if settings_button.update(event):
                         settings_window.show = True
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.load('data/whistle.mp3')
+                        pygame.mixer.music.set_volume(0.5)
+                        pygame.mixer.music.play(-1)
 
                     if exchage_button.update(event):
                         if score['gems'] - score['exchange gems'][0] < 0:
@@ -374,6 +388,12 @@ def main():
                         if any([window.show for window in popup_windows]):
                             for window in popup_windows:
                                 window.show = False
+
+                            pygame.mixer.music.stop()
+                            pygame.mixer.music.load('data/coralchorus.mp3')
+                            pygame.mixer.music.set_volume(0.5)
+                            pygame.mixer.music.play(-1)
+
                             status_bar.time_count = 0
                     if event.key == pygame.K_c:
                         if not any([window.show for window in popup_windows]):
@@ -520,6 +540,11 @@ def main():
                          load_image('sand_diamond.png')]
                 bg, x_tiles, y_tiles = background(screen_size, tiles, True,
                                                   (90, 4, 3, 2, 1))
+
+                pygame.mixer.music.stop()
+                pygame.mixer.music.load('data/burzum.mp3')
+                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.play(-1)
 
                 status_bar.time_count = 0
                 bg_drawn = True
@@ -888,6 +913,11 @@ def main():
                 # Loading background
                 x_tiles, y_tiles = background(screen_size, rand=False)
                 bg = load_image('pannels.png')
+
+                pygame.mixer.music.stop()
+                pygame.mixer.music.load('data/revolutiondeathsquad.mp3')
+                pygame.mixer.music.set_volume(0.5)
+                pygame.mixer.music.play(-1)
 
                 pressed = False
                 given = False
