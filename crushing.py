@@ -1,9 +1,31 @@
+import random
 import pygame
 from image_controller import load_image
+import json
+import time
 
 
 class Crushing:
+
+    def update_text(self):
+        self.text1 = self.f1.render('iron', True, (255, 255, 255))
+        self.text2 = self.f2.render('iron nuggets', True, (255, 255, 255))
+        self.text3 = self.f3.render(f'{self.score["iron"]}', True, (255, 255, 255))
+        self.text4 = self.f4.render(f'{self.score["iron nuggets"]}', True, (255, 255, 255))
+        self.text5 = self.f5.render('gold', True, (255, 255, 255))
+        self.text6 = self.f6.render('gold nuggets', True, (255, 255, 255))
+        self.text7 = self.f7.render(f'{self.score["gold"]}', True, (255, 255, 255))
+        self.text8 = self.f8.render(f'{self.score["gold nuggets"]}', True, (255, 255, 255))
+        self.text9 = self.f9.render("You don't have enough iron", True, (255, 255, 255))
+        self.text10 = self.f10.render("You don't have enough gold", True, (255, 255, 255))
+
     def __init__(self):
+        try:
+            with open('score.txt') as score_file:
+                self.score = json.load(score_file)
+        except:
+            print('No file created yet')
+
         pygame.init()
         size = 1000, 1000
         self.screen = pygame.display.set_mode(size)
@@ -13,31 +35,20 @@ class Crushing:
         self.end_1_sprites = pygame.sprite.Group()
         self.end_2_sprites = pygame.sprite.Group()
         self.first_fill = False
+        self.clicks = 0
 
-        f1 = pygame.font.Font(None, 72)
-        self.text1 = f1.render('iron', True, (255, 255, 255))
+        self.f1 = pygame.font.Font(None, 72)
+        self.f2 = pygame.font.Font(None, 72)
+        self.f3 = pygame.font.Font(None, 72)
+        self.f4 = pygame.font.Font(None, 72)
+        self.f5 = pygame.font.Font(None, 72)
+        self.f6 = pygame.font.Font(None, 72)
+        self.f7 = pygame.font.Font(None, 72)
+        self.f8 = pygame.font.Font(None, 72)
+        self.f9 = pygame.font.Font(None, 72)
+        self.f10 = pygame.font.Font(None, 72)
 
-        f2 = pygame.font.Font(None, 72)
-        self.text2 = f2.render('iron nuggets', True, (255, 255, 255))
-
-        f3 = pygame.font.Font(None, 72)
-        self.text3 = f3.render('0', True, (255, 255, 255))
-
-        f4 = pygame.font.Font(None, 72)
-        self.text4 = f4.render('0', True, (255, 255, 255))
-
-        f5 = pygame.font.Font(None, 72)
-        self.text5 = f5.render('gold', True, (255, 255, 255))
-
-        f6 = pygame.font.Font(None, 72)
-        self.text6 = f6.render('gold nuggets', True, (255, 255, 255))
-
-        f7 = pygame.font.Font(None, 72)
-        self.text7 = f7.render('0', True, (255, 255, 255))
-
-        f8 = pygame.font.Font(None, 72)
-        self.text8 = f8.render('0', True, (255, 255, 255))
-
+        self.update_text()
 
         iron_ingots_image = load_image('iron_ingots.png', -1)
         iron_ingots = pygame.sprite.Sprite(self.start_sprites)
@@ -115,9 +126,27 @@ class Crushing:
     def get_event(self, image, event):
         if image.rect.collidepoint(event.pos):
             if id(image) == self.iron_id:
-                self.current = 1
-            elif id(image) == self.gold_id:
-                self.current = 2
+                if self.score['iron'] != 0:
+                    self.current = 1
+                else:
+                    self.screen.blit(self.text9, (200, 100))
+                    pygame.display.flip()
+                    time.sleep(1)
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    pygame.display.flip()
+
+            if id(image) == self.gold_id:
+                if self.score['gold'] != 0:
+                    self.current = 2
+                else:
+                    self.screen.blit(self.text10, (200, 100))
+                    pygame.display.flip()
+                    time.sleep(1)
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    pygame.display.flip()
+
 
     def main_crushing(self):
         while self.running:
@@ -126,7 +155,7 @@ class Crushing:
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
                             self.running = False
-                            #mode = 1
+                            # mode = 1
                     if event.type == pygame.MOUSEBUTTONUP:
                         for image in self.start_sprites:
                             self.get_event(image, event)
@@ -150,8 +179,26 @@ class Crushing:
                             pygame.display.flip()
                             self.first_fill = False
                     if event.type == pygame.MOUSEBUTTONUP:
-                        if
-
+                        if self.score['iron'] != 0:
+                            self.clicks += 1
+                            if self.clicks == 3:
+                                self.score['iron'] -= 1
+                                self.score['iron nuggets'] += random.randint(1, 3)
+                                self.clicks = 0
+                                self.screen.fill((0, 0, 0))
+                                self.end_1_sprites.draw(self.screen)
+                                self.update_text()
+                                self.screen.blit(self.text1, (50, 800))
+                                self.screen.blit(self.text2, (650, 800))
+                                self.screen.blit(self.text3, (50, 870))
+                                self.screen.blit(self.text4, (650, 870))
+                                pygame.display.flip()
+                        else:
+                            self.current = None
+                            self.screen.fill((0, 0, 0))
+                            self.start_sprites.draw(self.screen)
+                            pygame.display.flip()
+                            self.first_fill = False
 
             elif self.current == 2:
                 if not self.first_fill:
@@ -166,6 +213,27 @@ class Crushing:
                 for event in pygame.event.get():
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
+                            self.current = None
+                            self.screen.fill((0, 0, 0))
+                            self.start_sprites.draw(self.screen)
+                            pygame.display.flip()
+                            self.first_fill = False
+                    if event.type == pygame.MOUSEBUTTONUP:
+                        if self.score['gold'] != 0:
+                            self.clicks += 1
+                            if self.clicks == 3:
+                                self.score['gold'] -= 1
+                                self.score['gold nuggets'] += random.randint(1, 2)
+                                self.clicks = 0
+                                self.screen.fill((0, 0, 0))
+                                self.end_2_sprites.draw(self.screen)
+                                self.update_text()
+                                self.screen.blit(self.text5, (50, 800))
+                                self.screen.blit(self.text6, (650, 800))
+                                self.screen.blit(self.text7, (50, 870))
+                                self.screen.blit(self.text8, (650, 870))
+                                pygame.display.flip()
+                        else:
                             self.current = None
                             self.screen.fill((0, 0, 0))
                             self.start_sprites.draw(self.screen)
