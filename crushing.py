@@ -26,6 +26,23 @@ class Crushing:
         except:
             print('No file created yet')
 
+        self.score = {
+            'coins': 9999,
+            'gems': 9999,
+            'coal': 1000,
+            'iron': 100,
+            'gold': 100,
+            'iron nuggets': 0,
+            'gold nuggets': 0,
+            'melt iron': 0,
+            'melt gold': 0,
+            'iron ingots': 0,
+            'gold ingots': 0,
+            'digging': [5, [5, 10, 20, 35, 49], [0, 200, 600, 1000, 1500], 'clk'],
+            'crushing': [10, [10, 7, 5, 3], [0, 200, 600, 1000], 'clk'],
+            'melting time': [10, [10, 7, 5, 3], [0, 500, 1000, 2000], 'sec'],
+            'exchange gems': [20, [20, 15, 10], [0, 10000, 20000], 'gem']}
+
         pygame.init()
         size = 1000, 1000
         self.screen = pygame.display.set_mode(size)
