@@ -6,17 +6,21 @@ import time
 
 class Melting:
     def update_text(self):
-        self.text1 = self.f1.render('iron nuggets', True, (255, 255, 255))
-        self.text2 = self.f2.render('melt iron', True, (255, 255, 255))
-        self.text3 = self.f3.render(f'{self.score["iron nuggets"]}', True, (255, 255, 255))
-        self.text4 = self.f4.render(f'{self.score["melt iron"]}', True, (255, 255, 255))
-        self.text5 = self.f5.render('gold nuggets', True, (255, 255, 255))
-        self.text6 = self.f6.render('melt gold', True, (255, 255, 255))
-        self.text7 = self.f7.render(f'{self.score["gold nuggets"]}', True, (255, 255, 255))
-        self.text8 = self.f8.render(f'{self.score["melt gold"]}', True, (255, 255, 255))
-        self.text9 = self.f9.render("You don't have enough iron nuggets", True, (255, 255, 255))
-        self.text10 = self.f10.render("You don't have enough gold nuggets", True, (255, 255, 255))
-        self.text11 = self.f11.render(f"{self.time_left}", True, (255, 255, 255))
+        self.text1 = self.f.render('iron nuggets', True, (255, 255, 255))
+        self.text2 = self.f.render('melt iron', True, (255, 255, 255))
+        self.text3 = self.f.render(f'{self.score["iron nuggets"]}', True, (255, 255, 255))
+        self.text4 = self.f.render(f'{self.score["melt iron"]}', True, (255, 255, 255))
+        self.text5 = self.f.render('gold nuggets', True, (255, 255, 255))
+        self.text6 = self.f.render('melt gold', True, (255, 255, 255))
+        self.text7 = self.f.render(f'{self.score["gold nuggets"]}', True, (255, 255, 255))
+        self.text8 = self.f.render(f'{self.score["melt gold"]}', True, (255, 255, 255))
+        self.text9 = self.f.render("You don't have enough iron nuggets", True, (255, 255, 255))
+        self.text10 = self.f.render("You don't have enough gold nuggets", True, (255, 255, 255))
+        self.text11 = self.f.render(f"wait: {self.time_left}", True, (255, 255, 255))
+        self.text12 = self.f.render(f"coal: {self.score['coal']}", True, (255, 255, 255))
+        self.text13 = self.f.render("You don't have enough coal", True, (255, 255, 255))
+        self.text14 = self.f.render(f'You got {self.received_melt_iron} melt iron', True, (255, 255, 255))
+        self.text15 = self.f.render(f'You got {self.received_melt_gold} melt gold', True, (255, 255, 255))
 
     def __init__(self):
         try:
@@ -28,10 +32,10 @@ class Melting:
         self.score = {
             'coins': 9999,
             'gems': 9999,
-            'coal': 1000,
-            'iron': 100,
-            'gold': 100,
-            'iron nuggets': 100,
+            'coal': 4,
+            'iron': 10,
+            'gold': 10,
+            'iron nuggets': 5,
             'gold nuggets': 100,
             'melt iron': 0,
             'melt gold': 0,
@@ -52,18 +56,10 @@ class Melting:
         self.end_2_sprites = pygame.sprite.Group()
         self.first_fill = False
         self.time_left = 0
+        self.received_melt_iron = 0
+        self.received_melt_gold = 0
 
-        self.f1 = pygame.font.Font(None, 72)
-        self.f2 = pygame.font.Font(None, 72)
-        self.f3 = pygame.font.Font(None, 72)
-        self.f4 = pygame.font.Font(None, 72)
-        self.f5 = pygame.font.Font(None, 72)
-        self.f6 = pygame.font.Font(None, 72)
-        self.f7 = pygame.font.Font(None, 72)
-        self.f8 = pygame.font.Font(None, 72)
-        self.f9 = pygame.font.Font(None, 72)
-        self.f10 = pygame.font.Font(None, 72)
-        self.f11 = pygame.font.Font(None, 72)
+        self.f = pygame.font.Font(None, 72)
 
         self.update_text()
 
@@ -119,8 +115,16 @@ class Melting:
     def get_event(self, image, event):
         if image.rect.collidepoint(event.pos):
             if id(image) == self.iron_id:
-                if self.score['iron nuggets'] != 0:
+                if self.score['iron nuggets'] != 0 and self.score['coal'] != 0:
                     self.current = 1
+                    self.time_left = 3 * self.score['iron nuggets']
+                elif self.score['coal'] == 0:
+                    self.screen.blit(self.text13, (155, 100))
+                    pygame.display.flip()
+                    time.sleep(0.75)
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    pygame.display.flip()
                 else:
                     self.screen.blit(self.text9, (85, 100))
                     pygame.display.flip()
@@ -130,8 +134,16 @@ class Melting:
                     pygame.display.flip()
 
             if id(image) == self.gold_id:
-                if self.score['gold nuggets'] != 0:
+                if self.score['gold nuggets'] != 0 and self.score['coal'] != 0:
                     self.current = 2
+                    self.time_left = 4 * self.score['gold nuggets']
+                elif self.score['coal'] == 0:
+                    self.screen.blit(self.text13, (155, 100))
+                    pygame.display.flip()
+                    time.sleep(0.75)
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    pygame.display.flip()
                 else:
                     self.screen.blit(self.text10, (85, 100))
                     pygame.display.flip()
@@ -161,38 +173,51 @@ class Melting:
                     self.screen.blit(self.text2, (650, 800))
                     self.screen.blit(self.text3, (50, 870))
                     self.screen.blit(self.text4, (650, 870))
+                    self.screen.blit(self.text12, (700, 50))
+                    self.screen.blit(self.text11, (400, 800))
                     pygame.display.flip()
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            self.current = None
+
+                while self.score['iron nuggets'] != 0 and self.score['coal'] != 0:
+                    if self.time_left != 0:
+                        for _ in range(3):
+                            time.sleep(1)
+                            self.time_left -= 1
                             self.screen.fill((0, 0, 0))
-                            self.start_sprites.draw(self.screen)
-                            pygame.display.flip()
-                            self.first_fill = False
-                    if self.score['iron nuggets'] != 0:
-                        if self.time_left != 0:
-                            for _ in range(4):
-                                time.sleep(1)
-                                self.time_left -= 1
-                                self.update_text()
-                            self.score['iron nuggets'] -= 3
-                            self.score['melt iron'] += 1
-                            self.clicks = 0
-                            self.screen.fill((0, 0, 0))
-                            self.end_1_sprites.draw(self.screen)
                             self.update_text()
+                            self.end_1_sprites.draw(self.screen)
                             self.screen.blit(self.text1, (50, 800))
                             self.screen.blit(self.text2, (650, 800))
                             self.screen.blit(self.text3, (50, 870))
                             self.screen.blit(self.text4, (650, 870))
+                            self.screen.blit(self.text12, (700, 50))
+                            self.screen.blit(self.text11, (400, 800))
                             pygame.display.flip()
-                    else:
-                        self.current = None
+                        self.score['iron nuggets'] -= 1
+                        self.score['coal'] -= 1
+                        self.score['melt iron'] += 1
+                        self.received_melt_iron += 1
                         self.screen.fill((0, 0, 0))
-                        self.start_sprites.draw(self.screen)
+                        self.update_text()
+                        self.end_1_sprites.draw(self.screen)
+                        self.screen.blit(self.text1, (50, 800))
+                        self.screen.blit(self.text2, (650, 800))
+                        self.screen.blit(self.text3, (50, 870))
+                        self.screen.blit(self.text4, (650, 870))
+                        self.screen.blit(self.text12, (700, 50))
+                        self.screen.blit(self.text11, (400, 800))
                         pygame.display.flip()
-                        self.first_fill = False
+                else:
+                    self.current = None
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    self.screen.blit(self.text14, (300, 100))
+                    pygame.display.flip()
+                    time.sleep(1.25)
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    pygame.display.flip()
+                    self.first_fill = False
+                    self.received_melt_iron = 0
 
             elif self.current == 2:
                 if not self.first_fill:
@@ -202,37 +227,52 @@ class Melting:
                     self.screen.blit(self.text6, (650, 800))
                     self.screen.blit(self.text7, (50, 870))
                     self.screen.blit(self.text8, (650, 870))
+                    self.screen.blit(self.text12, (700, 50))
+                    self.screen.blit(self.text11, (400, 800))
                     pygame.display.flip()
                     self.first_fill = True
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            self.current = None
+
+                while self.score['gold nuggets'] != 0:
+                    if self.time_left != 0:
+                        for _ in range(4):
+                            time.sleep(1)
+                            self.time_left -= 1
                             self.screen.fill((0, 0, 0))
-                            self.start_sprites.draw(self.screen)
+                            self.update_text()
+                            self.end_1_sprites.draw(self.screen)
+                            self.screen.blit(self.text5, (50, 800))
+                            self.screen.blit(self.text6, (650, 800))
+                            self.screen.blit(self.text7, (50, 870))
+                            self.screen.blit(self.text8, (650, 870))
+                            self.screen.blit(self.text12, (700, 50))
+                            self.screen.blit(self.text11, (400, 800))
                             pygame.display.flip()
-                            self.first_fill = False
-                    if event.type == pygame.MOUSEBUTTONUP:
-                        if self.score['gold nuggets'] != 0:
-                            self.clicks += 1
-                            if self.clicks == 3:
-                                self.score['gold'] -= 1
-                                self.score['gold nuggets'] += random.randint(1, 2)
-                                self.clicks = 0
-                                self.screen.fill((0, 0, 0))
-                                self.end_2_sprites.draw(self.screen)
-                                self.update_text()
-                                self.screen.blit(self.text5, (50, 800))
-                                self.screen.blit(self.text6, (650, 800))
-                                self.screen.blit(self.text7, (50, 870))
-                                self.screen.blit(self.text8, (650, 870))
-                                pygame.display.flip()
-                        else:
-                            self.current = None
-                            self.screen.fill((0, 0, 0))
-                            self.start_sprites.draw(self.screen)
-                            pygame.display.flip()
-                            self.first_fill = False
+                        self.score['gold nuggets'] -= 1
+                        self.score['coal'] -= 1
+                        self.score['melt gold'] += 1
+                        self.received_melt_gold += 1
+                        self.screen.fill((0, 0, 0))
+                        self.update_text()
+                        self.end_2_sprites.draw(self.screen)
+                        self.screen.blit(self.text5, (50, 800))
+                        self.screen.blit(self.text6, (650, 800))
+                        self.screen.blit(self.text7, (50, 870))
+                        self.screen.blit(self.text8, (650, 870))
+                        self.screen.blit(self.text12, (700, 50))
+                        self.screen.blit(self.text11, (400, 800))
+                        pygame.display.flip()
+                else:
+                    self.current = None
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    self.screen.blit(self.text15, (300, 100))
+                    pygame.display.flip()
+                    time.sleep(1.25)
+                    self.screen.fill((0, 0, 0))
+                    self.start_sprites.draw(self.screen)
+                    pygame.display.flip()
+                    self.first_fill = False
+                    self.received_melt_iron = 0
 
         pygame.quit()
 
