@@ -6,12 +6,12 @@ import time
 
 class Casting:
     def update_text(self):
-        self.text1 = self.f.render('iron nuggets', True, (255, 255, 255))
-        self.text2 = self.f.render('melt iron', True, (255, 255, 255))
+        self.text1 = self.f.render('melt iron', True, (255, 255, 255))
+        self.text2 = self.f.render('iron ingots', True, (255, 255, 255))
         self.text3 = self.f.render(f'{self.score["melt iron"]}', True, (255, 255, 255))
         self.text4 = self.f.render(f'{self.score["iron ingots"]}', True, (255, 255, 255))
-        self.text5 = self.f.render('gold nuggets', True, (255, 255, 255))
-        self.text6 = self.f.render('melt gold', True, (255, 255, 255))
+        self.text5 = self.f.render('melt gold', True, (255, 255, 255))
+        self.text6 = self.f.render('gold ingots', True, (255, 255, 255))
         self.text7 = self.f.render(f'{self.score["melt gold"]}', True, (255, 255, 255))
         self.text8 = self.f.render(f'{self.score["gold ingots"]}', True, (255, 255, 255))
         self.text9 = self.f.render("You don't have enough melt iron", True, (255, 255, 255))
@@ -35,8 +35,8 @@ class Casting:
             'gold': 10,
             'iron nuggets': 5,
             'gold nuggets': 100,
-            'melt iron': 5,
-            'melt gold': 5,
+            'melt iron': 1,
+            'melt gold': 10,
             'iron ingots': 0,
             'gold ingots': 0,
             'digging': [5, [5, 10, 20, 35, 49], [0, 200, 600, 1000, 1500], 'clk'],
@@ -74,11 +74,10 @@ class Casting:
         iron_ingots_image = load_image('iron_ingots.png', -1)
         iron_ingots = pygame.sprite.Sprite(self.end_1_sprites)
         iron_ingots_image = pygame.transform.scale(iron_ingots_image, (280, 200))
-        self.iron_id = id(iron_ingots)
         iron_ingots.image = iron_ingots_image
         iron_ingots.rect = iron_ingots.image.get_rect()
-        iron_ingots.rect.x = 570
-        iron_ingots.rect.y = 400
+        iron_ingots.rect.x = 360
+        iron_ingots.rect.y = 300
 
         # iron_image_highlighted = load_image('iron_ingots_highlited.png', -1)
         # iron_highlighted = pygame.sprite.Sprite()
@@ -101,11 +100,10 @@ class Casting:
         gold_ingots_image = load_image('gold_ingots.png', -1)
         gold_ingots = pygame.sprite.Sprite(self.end_2_sprites)
         gold_ingots_image = pygame.transform.scale(gold_ingots_image, (280, 200))
-        self.gold_id = id(gold_ingots)
         gold_ingots.image = gold_ingots_image
         gold_ingots.rect = gold_ingots.image.get_rect()
         gold_ingots.rect.x = 360
-        gold_ingots.rect.y = 600
+        gold_ingots.rect.y = 300
 
         # gold_image_highlighted = load_image('gold_ingots_highlited.png', -1)
         # gold_highlighted = pygame.sprite.Sprite()
@@ -124,11 +122,11 @@ class Casting:
     def get_event(self, image, event):
         if image.rect.collidepoint(event.pos):
             if id(image) == self.iron_id:
-                if self.score['melt iron'] != 0:
+                if self.score['melt iron'] >= 3:
                     self.current = 1
-                    self.time_left = 3 * self.score['melt iron']
+                    self.time_left = 15 * (self.score['melt iron'] // (self.number_of_molds * 3))
                 else:
-                    self.screen.blit(self.text9, (85, 100))
+                    self.screen.blit(self.text9, (90, 100))
                     pygame.display.flip()
                     time.sleep(0.75)
                     self.screen.fill((0, 0, 0))
@@ -136,11 +134,11 @@ class Casting:
                     pygame.display.flip()
 
             if id(image) == self.gold_id:
-                if self.score['gold nuggets'] != 0:
+                if self.score['melt gold'] >= 3:
                     self.current = 2
-                    self.time_left = 4 * self.score['gold nuggets']
+                    self.time_left = 18 * (self.score['melt gold'] // (self.number_of_molds * 3))
                 else:
-                    self.screen.blit(self.text10, (85, 100))
+                    self.screen.blit(self.text10, (90, 100))
                     pygame.display.flip()
                     time.sleep(0.75)
                     self.screen.fill((0, 0, 0))
@@ -171,9 +169,9 @@ class Casting:
                     self.screen.blit(self.text11, (400, 800))
                     pygame.display.flip()
 
-                while self.score['iron nuggets'] > 3:
+                while self.score['melt iron'] > 3:
                     if self.time_left != 0:
-                        for _ in range(3):
+                        for _ in range(15):
                             time.sleep(1)
                             self.time_left -= 1
                             self.screen.fill((0, 0, 0))
@@ -192,7 +190,7 @@ class Casting:
                         else:
                             molds_used = self.score['melt iron'] // 3
                             self.score['melt iron'] -= 3 * molds_used
-                            self.score['iron'] += molds_used
+                            self.score['iron ingots'] += molds_used
                             self.received_iron_ingots += molds_used
                         self.screen.fill((0, 0, 0))
                         self.update_text()
@@ -228,14 +226,14 @@ class Casting:
                     pygame.display.flip()
                     self.first_fill = True
 
-                while self.score['gold nuggets'] != 0:
+                while self.score['melt gold'] > 3:
                     if self.time_left != 0:
-                        for _ in range(4):
+                        for _ in range(18):
                             time.sleep(1)
                             self.time_left -= 1
                             self.screen.fill((0, 0, 0))
                             self.update_text()
-                            self.end_1_sprites.draw(self.screen)
+                            self.end_2_sprites.draw(self.screen)
                             self.screen.blit(self.text5, (50, 800))
                             self.screen.blit(self.text6, (650, 800))
                             self.screen.blit(self.text7, (50, 870))
