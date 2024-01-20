@@ -35,7 +35,7 @@ class Casting:
             'gold': 10,
             'iron nuggets': 5,
             'gold nuggets': 100,
-            'melt iron': 21,
+            'melt iron': 19,
             'melt gold': 10,
             'iron ingots': 5,
             'gold ingots': 5,
@@ -122,9 +122,12 @@ class Casting:
     def get_event(self, image, event):
         if image.rect.collidepoint(event.pos):
             if id(image) == self.iron_id:
-                if self.score['melt iron'] >= 3:
+                if self.score['melt iron'] >= 3 * self.number_of_molds:
                     self.current = 1
                     self.time_left = 15 * (self.score['melt iron'] // (self.number_of_molds * 3))
+                elif 3 * self.number_of_molds > self.score['melt iron'] >= 3:
+                    self.current = 1
+                    self.time_left = 15
                 else:
                     self.screen.blit(self.text9, (110, 100))
                     pygame.display.flip()
@@ -134,9 +137,12 @@ class Casting:
                     pygame.display.flip()
 
             if id(image) == self.gold_id:
-                if self.score['melt gold'] >= 3:
+                if self.score['melt gold'] >= 3 * self.number_of_molds:
                     self.current = 2
                     self.time_left = 18 * (self.score['melt gold'] // (self.number_of_molds * 3))
+                elif 3 <= self.score['melt gold'] < 9:
+                    self.current = 2
+                    self.time_left = 18
                 else:
                     self.screen.blit(self.text10, (110, 100))
                     pygame.display.flip()
@@ -149,8 +155,9 @@ class Casting:
         while self.running:
             if self.current == None:
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.running = False
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            self.running = False
                             # mode = 1
                     if event.type == pygame.MOUSEBUTTONUP:
                         for image in self.start_sprites:
@@ -171,6 +178,9 @@ class Casting:
                 while self.score['melt iron'] > 3:
                     if self.time_left != 0:
                         for _ in range(15):
+                            for event in pygame.event.get():
+                                if event.type == pygame.MOUSEBUTTONUP:
+                                    pass
                             time.sleep(1)
                             self.time_left -= 1
                             self.screen.fill((0, 0, 0))
@@ -229,6 +239,9 @@ class Casting:
                 while self.score['melt gold'] > 3:
                     if self.time_left != 0:
                         for _ in range(18):
+                            for event in pygame.event.get():
+                                if event.type == pygame.MOUSEBUTTONUP:
+                                    pass
                             time.sleep(1)
                             self.time_left -= 1
                             self.screen.fill((0, 0, 0))
