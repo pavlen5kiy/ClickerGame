@@ -117,7 +117,10 @@ class Melting:
             if id(image) == self.iron_id:
                 if self.score['iron nuggets'] != 0 and self.score['coal'] != 0:
                     self.current = 1
-                    self.time_left = 3 * self.score['iron nuggets']
+                    if self.score['coal'] >= self.score['iron nuggets']:
+                        self.time_left = 3 * self.score['gold nuggets']
+                    else:
+                        self.time_left = 3 * self.score['coal']
                 elif self.score['coal'] == 0:
                     self.screen.blit(self.text13, (155, 100))
                     pygame.display.flip()
@@ -136,7 +139,10 @@ class Melting:
             if id(image) == self.gold_id:
                 if self.score['gold nuggets'] != 0 and self.score['coal'] != 0:
                     self.current = 2
-                    self.time_left = 4 * self.score['gold nuggets']
+                    if self.score['coal'] >= self.score['gold nuggets']:
+                        self.time_left = 4 * self.score['gold nuggets']
+                    else:
+                        self.time_left = 4 * self.score['coal']
                 elif self.score['coal'] == 0:
                     self.screen.blit(self.text13, (155, 100))
                     pygame.display.flip()

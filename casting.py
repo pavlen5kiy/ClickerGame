@@ -37,8 +37,8 @@ class Casting:
             'gold nuggets': 100,
             'melt iron': 1,
             'melt gold': 10,
-            'iron ingots': 0,
-            'gold ingots': 0,
+            'iron ingots': 5,
+            'gold ingots': 5,
             'digging': [5, [5, 10, 20, 35, 49], [0, 200, 600, 1000, 1500], 'clk'],
             'crushing': [10, [10, 7, 5, 3], [0, 200, 600, 1000], 'clk'],
             'melting time': [10, [10, 7, 5, 3], [0, 500, 1000, 2000], 'sec'],
@@ -126,7 +126,7 @@ class Casting:
                     self.current = 1
                     self.time_left = 15 * (self.score['melt iron'] // (self.number_of_molds * 3))
                 else:
-                    self.screen.blit(self.text9, (90, 100))
+                    self.screen.blit(self.text9, (110, 100))
                     pygame.display.flip()
                     time.sleep(0.75)
                     self.screen.fill((0, 0, 0))
@@ -138,7 +138,7 @@ class Casting:
                     self.current = 2
                     self.time_left = 18 * (self.score['melt gold'] // (self.number_of_molds * 3))
                 else:
-                    self.screen.blit(self.text10, (90, 100))
+                    self.screen.blit(self.text10, (110, 100))
                     pygame.display.flip()
                     time.sleep(0.75)
                     self.screen.fill((0, 0, 0))
