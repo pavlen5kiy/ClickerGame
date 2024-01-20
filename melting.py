@@ -32,7 +32,7 @@ class Melting:
         self.score = {
             'coins': 9999,
             'gems': 9999,
-            'coal': 4,
+            'coal': 40,
             'iron': 10,
             'gold': 10,
             'iron nuggets': 5,
@@ -118,7 +118,7 @@ class Melting:
                 if self.score['iron nuggets'] != 0 and self.score['coal'] != 0:
                     self.current = 1
                     if self.score['coal'] >= self.score['iron nuggets']:
-                        self.time_left = 3 * self.score['gold nuggets']
+                        self.time_left = 3 * self.score['iron nuggets']
                     else:
                         self.time_left = 3 * self.score['coal']
                 elif self.score['coal'] == 0:
@@ -184,6 +184,16 @@ class Melting:
                     pygame.display.flip()
 
                 while self.score['iron nuggets'] != 0 and self.score['coal'] != 0:
+                    for event in pygame.event.get():
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:
+                                self.current = None
+                                self.screen.fill((0, 0, 0))
+                                self.start_sprites.draw(self.screen)
+                                pygame.display.flip()
+                                self.first_fill = False
+                        if event.type == pygame.MOUSEBUTTONUP:
+                            pass
                     if self.time_left != 0:
                         for _ in range(3):
                             time.sleep(1)
@@ -239,6 +249,9 @@ class Melting:
                     self.first_fill = True
 
                 while self.score['gold nuggets'] != 0:
+                    for event in pygame.event.get():
+                        if event.type == pygame.MOUSEBUTTONUP:
+                            pass
                     if self.time_left != 0:
                         for _ in range(4):
                             time.sleep(1)

@@ -77,7 +77,7 @@ class Casting:
         iron_ingots.image = iron_ingots_image
         iron_ingots.rect = iron_ingots.image.get_rect()
         iron_ingots.rect.x = 360
-        iron_ingots.rect.y = 300
+        iron_ingots.rect.y = 100
 
         # iron_image_highlighted = load_image('iron_ingots_highlited.png', -1)
         # iron_highlighted = pygame.sprite.Sprite()
@@ -103,7 +103,7 @@ class Casting:
         gold_ingots.image = gold_ingots_image
         gold_ingots.rect = gold_ingots.image.get_rect()
         gold_ingots.rect.x = 360
-        gold_ingots.rect.y = 300
+        gold_ingots.rect.y = 100
 
         # gold_image_highlighted = load_image('gold_ingots_highlited.png', -1)
         # gold_highlighted = pygame.sprite.Sprite()
@@ -113,6 +113,14 @@ class Casting:
         # gold_highlighted.rect = gold_highlighted.image.get_rect()
         # gold_highlighted.rect.x = 570
         # gold_highlighted.rect.y = 200
+
+        mold_image = load_image('mold.png', -1)
+        mold = pygame.sprite.Sprite(self.end_1_sprites, self.end_2_sprites)
+        self.mold_id = id(mold)
+        mold.image = mold_image
+        mold.rect = mold.image.get_rect()
+        mold.rect.x = 360
+        mold.rect.y = 300
 
         self.start_sprites.draw(self.screen)
         pygame.display.flip()
