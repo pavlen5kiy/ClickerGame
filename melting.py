@@ -1,8 +1,8 @@
-import random
 import pygame
 from image_controller import load_image
 import json
 import time
+
 
 class Melting:
     def update_text(self):
@@ -35,8 +35,8 @@ class Melting:
             'coal': 40,
             'iron': 10,
             'gold': 10,
-            'iron nuggets': 5,
-            'gold nuggets': 100,
+            'iron nuggets': 3,
+            'gold nuggets': 3,
             'melt iron': 0,
             'melt gold': 0,
             'iron ingots': 0,
@@ -185,13 +185,6 @@ class Melting:
 
                 while self.score['iron nuggets'] != 0 and self.score['coal'] != 0:
                     for event in pygame.event.get():
-                        if event.type == pygame.KEYDOWN:
-                            if event.key == pygame.K_ESCAPE:
-                                self.current = None
-                                self.screen.fill((0, 0, 0))
-                                self.start_sprites.draw(self.screen)
-                                pygame.display.flip()
-                                self.first_fill = False
                         if event.type == pygame.MOUSEBUTTONUP:
                             pass
                     if self.time_left != 0:
@@ -234,6 +227,7 @@ class Melting:
                     pygame.display.flip()
                     self.first_fill = False
                     self.received_melt_iron = 0
+                    pygame.event.get()
 
             elif self.current == 2:
                 if not self.first_fill:
@@ -248,7 +242,7 @@ class Melting:
                     pygame.display.flip()
                     self.first_fill = True
 
-                while self.score['gold nuggets'] != 0:
+                while self.score['gold nuggets'] != 0 and self.score['coal'] != 0:
                     for event in pygame.event.get():
                         if event.type == pygame.MOUSEBUTTONUP:
                             pass
@@ -292,6 +286,7 @@ class Melting:
                     pygame.display.flip()
                     self.first_fill = False
                     self.received_melt_gold = 0
+                    pygame.event.get()
 
         pygame.quit()
 

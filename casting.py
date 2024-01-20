@@ -1,8 +1,8 @@
-import random
 import pygame
 from image_controller import load_image
 import json
 import time
+
 
 class Casting:
     def update_text(self):
@@ -35,7 +35,7 @@ class Casting:
             'gold': 10,
             'iron nuggets': 5,
             'gold nuggets': 100,
-            'melt iron': 1,
+            'melt iron': 21,
             'melt gold': 10,
             'iron ingots': 5,
             'gold ingots': 5,
@@ -114,14 +114,6 @@ class Casting:
         # gold_highlighted.rect.x = 570
         # gold_highlighted.rect.y = 200
 
-        mold_image = load_image('mold.png', -1)
-        mold = pygame.sprite.Sprite(self.end_1_sprites, self.end_2_sprites)
-        self.mold_id = id(mold)
-        mold.image = mold_image
-        mold.rect = mold.image.get_rect()
-        mold.rect.x = 360
-        mold.rect.y = 300
-
         self.start_sprites.draw(self.screen)
         pygame.display.flip()
         self.running = True
@@ -157,9 +149,8 @@ class Casting:
         while self.running:
             if self.current == None:
                 for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:
-                            self.running = False
+                    if event.type == pygame.QUIT:
+                        self.running = False
                             # mode = 1
                     if event.type == pygame.MOUSEBUTTONUP:
                         for image in self.start_sprites:
@@ -221,6 +212,7 @@ class Casting:
                     pygame.display.flip()
                     self.first_fill = False
                     self.received_iron_ingots = 0
+                    pygame.event.get()
 
             elif self.current == 2:
                 if not self.first_fill:
@@ -278,6 +270,7 @@ class Casting:
                     pygame.display.flip()
                     self.first_fill = False
                     self.received_gold_ingots = 0
+                    pygame.event.get()
 
         pygame.quit()
 
