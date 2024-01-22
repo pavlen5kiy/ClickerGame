@@ -78,8 +78,8 @@ def main():
     clock = pygame.time.Clock()
 
     score = {
-        'coins': 9999,
-        'gems': 9999,
+        'coins': 1000,
+        'gems': 100,
         'coal': 0,
         'iron': 0,
         'gold': 0,
