@@ -107,7 +107,7 @@ class Board:
                          particles_group)
 
         state = random.choices(self.states,
-                               weights=(40, 25, 20, 8, 5, 2), k=1)[0]
+                               weights=(35, 35, 15, 8, 5, 2), k=1)[0]
         index = self.states.index(state)
 
         if index:
