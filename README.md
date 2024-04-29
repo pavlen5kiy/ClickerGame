@@ -1,6 +1,9 @@
 # Overview
 This is a **Factory Clicker Game** by _**pavle5kiy**_ and _**SirPecos**_  
 
+# Important
+Checkout **develop** branch, as it contains the latest code!
+
 # Gameplay
 ## Steps
 1. Dig ore
